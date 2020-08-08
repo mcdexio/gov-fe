@@ -7,20 +7,11 @@ const schemaString = fs.readFileSync(
 );
 console.log('schemaString', schemaString);
 module.exports = {
-  extends: [
-    'react-app',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'prettier',
-  ],
+  extends: ['plugin:import/errors', 'plugin:import/warnings', 'prettier'],
   rules: {
     'no-console': 0,
-    'graphql/template-strings': ['error',
-      { env: 'apollo', schemaString
-      }
-    ],
+    'graphql/template-strings': ['error', { env: 'apollo', schemaString }],
     'prettier/prettier': 'error',
   },
-  plugins: ['graphql', 'prettier'
-  ],
+  plugins: ['graphql', 'prettier'],
 };

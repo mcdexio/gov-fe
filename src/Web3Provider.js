@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import ethers from 'ethers';
-import VoteBoxDesc from './abi/VoteBox.json';
+import { abi as VoteBoxABI } from './abi/VoteBox.json';
 
 const debug = Debug('Web3Provider');
 const { Provider, Consumer } = React.createContext();
@@ -30,6 +30,7 @@ const web3Modal = new Web3Modal({
 
 let web3Provider;
 let ethersProvider;
+let ethersSigner;
 
 class Web3ContextProvider extends Component {
   state = {
@@ -53,6 +54,7 @@ class Web3ContextProvider extends Component {
     web3Provider.autoRefreshOnNetworkChange = false;
     ethersProvider = new ethers.providers.Web3Provider(web3Provider, 'any');
     debug('ethers ethersProvider', ethersProvider);
+    ethersSigner = ethersProvider.getSigner();
 
     const [accounts, network] = await Promise.all([
       ethersProvider.listAccounts(),
@@ -114,26 +116,46 @@ class Web3ContextProvider extends Component {
 
   propose = async () => {
     const voteBoxContract = new ethers.Contract(
-      VOTEBOX_ADDRESSES[this.state.chainID],
-      VoteBoxDesc,
-      ethersProvider,
+      VOTEBOX_ADDRESSES[this.state.chainID.toString()],
+      VoteBoxABI,
+      ethersSigner,
     );
-    await voteBoxContract.propose();
+    const tx = await voteBoxContract.propose(
+      'https://forum.mcdex.io/t/discussion-about-liquidity-mining-round-shang/24',
+      8458758,
+      8464518,
+    );
+    debug('propose tx', tx);
+    const receipt = await tx.wait();
+  };
+
+  vote = async () => {
+    debug('vote', this.state.chainID.toString());
+    const voteBoxContract = new ethers.Contract(
+      VOTEBOX_ADDRESSES[this.state.chainID.toString()],
+      VoteBoxABI,
+      ethersSigner,
+    );
+    const tx = await voteBoxContract.vote(1, 2, {
+      gasLimit: 750000,
+    });
+    debug('vote tx', tx);
+    const receipt = await tx.wait();
   };
 
   render() {
     return (
       <Provider
         value={{
-          theme: this.state.theme,
-          toggleTheme: this.toggleTheme,
+          chainID: this.state.chainID,
+          chainName: this.state.chainName,
           address: this.state.address,
           isConnected: this.state.isConnected,
           isConnecting: this.state.isConnecting,
           connect: this.connect,
           disconnect: this.disconnect,
-          chainID: this.state.chainID,
-          chainName: this.state.chainName,
+          propose: this.propose,
+          vote: this.vote,
         }}
       >
         {this.props.children}

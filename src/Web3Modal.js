@@ -39,6 +39,15 @@ const Web3ModalComponent = ({ classes }) => {
             {`context.isConnecting ${context.isConnecting}`}
             {`context.networkVersion ${context.chainID}`}
           </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            onClick={() => context.propose()}
+          >
+            {`Propose a vote`}
+          </Button>
         </div>
       )}
     </Web3Consumer>

@@ -1,0 +1,8 @@
+schema:
+  - 'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-ropsten-subgraph'
+extensions:
+  codegen:
+    generates:
+      ./schema.graphql:
+        plugins:
+          - schema-ast

@@ -1,0 +1,996 @@
+type Account {
+  id: ID!
+  votes(skip: Int = 0, first: Int = 100, orderBy: Vote_orderBy, orderDirection: OrderDirection, where: Vote_filter): [Vote!]!
+  transfers(skip: Int = 0, first: Int = 100, orderBy: Transfer_orderBy, orderDirection: OrderDirection, where: Transfer_filter): [Transfer!]!
+  balancesHistory(skip: Int = 0, first: Int = 100, orderBy: Balance_orderBy, orderDirection: OrderDirection, where: Balance_filter): [Balance!]!
+  balancesLatest(skip: Int = 0, first: Int = 100, orderBy: LatestBalance_orderBy, orderDirection: OrderDirection, where: LatestBalance_filter): [LatestBalance!]!
+}
+
+input Account_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+}
+
+enum Account_orderBy {
+  id
+  votes
+  transfers
+  balancesHistory
+  balancesLatest
+}
+
+type Balance {
+  id: ID!
+  account: Account!
+  contract: Contract!
+  balance: BigDecimal!
+  totalSupply: BigDecimal!
+  transaction: Transaction!
+  block: BigInt!
+}
+
+input Balance_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  account: String
+  account_not: String
+  account_gt: String
+  account_lt: String
+  account_gte: String
+  account_lte: String
+  account_in: [String!]
+  account_not_in: [String!]
+  account_contains: String
+  account_not_contains: String
+  account_starts_with: String
+  account_not_starts_with: String
+  account_ends_with: String
+  account_not_ends_with: String
+  contract: String
+  contract_not: String
+  contract_gt: String
+  contract_lt: String
+  contract_gte: String
+  contract_lte: String
+  contract_in: [String!]
+  contract_not_in: [String!]
+  contract_contains: String
+  contract_not_contains: String
+  contract_starts_with: String
+  contract_not_starts_with: String
+  contract_ends_with: String
+  contract_not_ends_with: String
+  balance: BigDecimal
+  balance_not: BigDecimal
+  balance_gt: BigDecimal
+  balance_lt: BigDecimal
+  balance_gte: BigDecimal
+  balance_lte: BigDecimal
+  balance_in: [BigDecimal!]
+  balance_not_in: [BigDecimal!]
+  totalSupply: BigDecimal
+  totalSupply_not: BigDecimal
+  totalSupply_gt: BigDecimal
+  totalSupply_lt: BigDecimal
+  totalSupply_gte: BigDecimal
+  totalSupply_lte: BigDecimal
+  totalSupply_in: [BigDecimal!]
+  totalSupply_not_in: [BigDecimal!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_not_contains: String
+  transaction_starts_with: String
+  transaction_not_starts_with: String
+  transaction_ends_with: String
+  transaction_not_ends_with: String
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+}
+
+enum Balance_orderBy {
+  id
+  account
+  contract
+  balance
+  totalSupply
+  transaction
+  block
+}
+
+scalar BigDecimal
+
+scalar BigInt
+
+input Block_height {
+  hash: Bytes
+  number: Int
+}
+
+scalar Bytes
+
+enum Content {
+  INVALID
+  FOR
+  AGAINST
+}
+
+type Contract {
+  id: ID!
+  totalSupply: BigDecimal!
+  transfers(skip: Int = 0, first: Int = 100, orderBy: Transfer_orderBy, orderDirection: OrderDirection, where: Transfer_filter): [Transfer!]!
+  balancesHistory(skip: Int = 0, first: Int = 100, orderBy: Balance_orderBy, orderDirection: OrderDirection, where: Balance_filter): [Balance!]!
+  balancesLatest(skip: Int = 0, first: Int = 100, orderBy: LatestBalance_orderBy, orderDirection: OrderDirection, where: LatestBalance_filter): [LatestBalance!]!
+}
+
+input Contract_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  totalSupply: BigDecimal
+  totalSupply_not: BigDecimal
+  totalSupply_gt: BigDecimal
+  totalSupply_lt: BigDecimal
+  totalSupply_gte: BigDecimal
+  totalSupply_lte: BigDecimal
+  totalSupply_in: [BigDecimal!]
+  totalSupply_not_in: [BigDecimal!]
+}
+
+enum Contract_orderBy {
+  id
+  totalSupply
+  transfers
+  balancesHistory
+  balancesLatest
+}
+
+interface Event {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+}
+
+input Event_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_not_contains: String
+  transaction_starts_with: String
+  transaction_not_starts_with: String
+  transaction_ends_with: String
+  transaction_not_ends_with: String
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+}
+
+enum Event_orderBy {
+  id
+  transaction
+  timestamp
+}
+
+type LatestBalance {
+  id: ID!
+  account: Account!
+  contract: Contract!
+  balance: BigDecimal!
+  totalSupply: BigDecimal!
+  transaction: Transaction!
+  block: BigInt!
+}
+
+input LatestBalance_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  account: String
+  account_not: String
+  account_gt: String
+  account_lt: String
+  account_gte: String
+  account_lte: String
+  account_in: [String!]
+  account_not_in: [String!]
+  account_contains: String
+  account_not_contains: String
+  account_starts_with: String
+  account_not_starts_with: String
+  account_ends_with: String
+  account_not_ends_with: String
+  contract: String
+  contract_not: String
+  contract_gt: String
+  contract_lt: String
+  contract_gte: String
+  contract_lte: String
+  contract_in: [String!]
+  contract_not_in: [String!]
+  contract_contains: String
+  contract_not_contains: String
+  contract_starts_with: String
+  contract_not_starts_with: String
+  contract_ends_with: String
+  contract_not_ends_with: String
+  balance: BigDecimal
+  balance_not: BigDecimal
+  balance_gt: BigDecimal
+  balance_lt: BigDecimal
+  balance_gte: BigDecimal
+  balance_lte: BigDecimal
+  balance_in: [BigDecimal!]
+  balance_not_in: [BigDecimal!]
+  totalSupply: BigDecimal
+  totalSupply_not: BigDecimal
+  totalSupply_gt: BigDecimal
+  totalSupply_lt: BigDecimal
+  totalSupply_gte: BigDecimal
+  totalSupply_lte: BigDecimal
+  totalSupply_in: [BigDecimal!]
+  totalSupply_not_in: [BigDecimal!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_not_contains: String
+  transaction_starts_with: String
+  transaction_not_starts_with: String
+  transaction_ends_with: String
+  transaction_not_ends_with: String
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+}
+
+enum LatestBalance_orderBy {
+  id
+  account
+  contract
+  balance
+  totalSupply
+  transaction
+  block
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+type Proposal implements Event {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  link: String!
+  beginBlock: BigInt!
+  endBlock: BigInt!
+  votes(skip: Int = 0, first: Int = 100, orderBy: Vote_orderBy, orderDirection: OrderDirection, where: Vote_filter): [Vote!]!
+}
+
+input Proposal_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_not_contains: String
+  transaction_starts_with: String
+  transaction_not_starts_with: String
+  transaction_ends_with: String
+  transaction_not_ends_with: String
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  link: String
+  link_not: String
+  link_gt: String
+  link_lt: String
+  link_gte: String
+  link_lte: String
+  link_in: [String!]
+  link_not_in: [String!]
+  link_contains: String
+  link_not_contains: String
+  link_starts_with: String
+  link_not_starts_with: String
+  link_ends_with: String
+  link_not_ends_with: String
+  beginBlock: BigInt
+  beginBlock_not: BigInt
+  beginBlock_gt: BigInt
+  beginBlock_lt: BigInt
+  beginBlock_gte: BigInt
+  beginBlock_lte: BigInt
+  beginBlock_in: [BigInt!]
+  beginBlock_not_in: [BigInt!]
+  endBlock: BigInt
+  endBlock_not: BigInt
+  endBlock_gt: BigInt
+  endBlock_lt: BigInt
+  endBlock_gte: BigInt
+  endBlock_lte: BigInt
+  endBlock_in: [BigInt!]
+  endBlock_not_in: [BigInt!]
+}
+
+enum Proposal_orderBy {
+  id
+  transaction
+  timestamp
+  link
+  beginBlock
+  endBlock
+  votes
+}
+
+type Query {
+  transaction(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Transaction
+  transactions(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Transaction_orderBy
+    orderDirection: OrderDirection
+    where: Transaction_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Transaction!]!
+  account(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Account
+  accounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Account_orderBy
+    orderDirection: OrderDirection
+    where: Account_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Account!]!
+  contract(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Contract
+  contracts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Contract_orderBy
+    orderDirection: OrderDirection
+    where: Contract_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Contract!]!
+  transfer(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Transfer
+  transfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Transfer_orderBy
+    orderDirection: OrderDirection
+    where: Transfer_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Transfer!]!
+  latestBalance(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): LatestBalance
+  latestBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: LatestBalance_orderBy
+    orderDirection: OrderDirection
+    where: LatestBalance_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [LatestBalance!]!
+  balance(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Balance
+  balances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Balance_orderBy
+    orderDirection: OrderDirection
+    where: Balance_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Balance!]!
+  proposal(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Proposal
+  proposals(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Proposal_orderBy
+    orderDirection: OrderDirection
+    where: Proposal_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Proposal!]!
+  vote(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Vote
+  votes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Vote_orderBy
+    orderDirection: OrderDirection
+    where: Vote_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Vote!]!
+  event(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Event
+  events(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Event_orderBy
+    orderDirection: OrderDirection
+    where: Event_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Event!]!
+}
+
+type Subscription {
+  transaction(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Transaction
+  transactions(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Transaction_orderBy
+    orderDirection: OrderDirection
+    where: Transaction_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Transaction!]!
+  account(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Account
+  accounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Account_orderBy
+    orderDirection: OrderDirection
+    where: Account_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Account!]!
+  contract(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Contract
+  contracts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Contract_orderBy
+    orderDirection: OrderDirection
+    where: Contract_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Contract!]!
+  transfer(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Transfer
+  transfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Transfer_orderBy
+    orderDirection: OrderDirection
+    where: Transfer_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Transfer!]!
+  latestBalance(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): LatestBalance
+  latestBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: LatestBalance_orderBy
+    orderDirection: OrderDirection
+    where: LatestBalance_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [LatestBalance!]!
+  balance(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Balance
+  balances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Balance_orderBy
+    orderDirection: OrderDirection
+    where: Balance_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Balance!]!
+  proposal(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Proposal
+  proposals(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Proposal_orderBy
+    orderDirection: OrderDirection
+    where: Proposal_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Proposal!]!
+  vote(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Vote
+  votes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Vote_orderBy
+    orderDirection: OrderDirection
+    where: Vote_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Vote!]!
+  event(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Event
+  events(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Event_orderBy
+    orderDirection: OrderDirection
+    where: Event_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Event!]!
+}
+
+type Transaction {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  events(skip: Int = 0, first: Int = 100, orderBy: Event_orderBy, orderDirection: OrderDirection, where: Event_filter): [Event!]!
+}
+
+input Transaction_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+}
+
+enum Transaction_orderBy {
+  id
+  timestamp
+  blockNumber
+  events
+}
+
+type Transfer {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: Contract!
+  from: Account!
+  to: Account!
+  value: BigDecimal!
+}
+
+input Transfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_not_contains: String
+  transaction_starts_with: String
+  transaction_not_starts_with: String
+  transaction_ends_with: String
+  transaction_not_ends_with: String
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  contract: String
+  contract_not: String
+  contract_gt: String
+  contract_lt: String
+  contract_gte: String
+  contract_lte: String
+  contract_in: [String!]
+  contract_not_in: [String!]
+  contract_contains: String
+  contract_not_contains: String
+  contract_starts_with: String
+  contract_not_starts_with: String
+  contract_ends_with: String
+  contract_not_ends_with: String
+  from: String
+  from_not: String
+  from_gt: String
+  from_lt: String
+  from_gte: String
+  from_lte: String
+  from_in: [String!]
+  from_not_in: [String!]
+  from_contains: String
+  from_not_contains: String
+  from_starts_with: String
+  from_not_starts_with: String
+  from_ends_with: String
+  from_not_ends_with: String
+  to: String
+  to_not: String
+  to_gt: String
+  to_lt: String
+  to_gte: String
+  to_lte: String
+  to_in: [String!]
+  to_not_in: [String!]
+  to_contains: String
+  to_not_contains: String
+  to_starts_with: String
+  to_not_starts_with: String
+  to_ends_with: String
+  to_not_ends_with: String
+  value: BigDecimal
+  value_not: BigDecimal
+  value_gt: BigDecimal
+  value_lt: BigDecimal
+  value_gte: BigDecimal
+  value_lte: BigDecimal
+  value_in: [BigDecimal!]
+  value_not_in: [BigDecimal!]
+}
+
+enum Transfer_orderBy {
+  id
+  transaction
+  timestamp
+  contract
+  from
+  to
+  value
+}
+
+type Vote implements Event {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  voter: Account!
+  proposal: Proposal!
+  content: Content!
+}
+
+input Vote_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_not_contains: String
+  transaction_starts_with: String
+  transaction_not_starts_with: String
+  transaction_ends_with: String
+  transaction_not_ends_with: String
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  voter: String
+  voter_not: String
+  voter_gt: String
+  voter_lt: String
+  voter_gte: String
+  voter_lte: String
+  voter_in: [String!]
+  voter_not_in: [String!]
+  voter_contains: String
+  voter_not_contains: String
+  voter_starts_with: String
+  voter_not_starts_with: String
+  voter_ends_with: String
+  voter_not_ends_with: String
+  proposal: String
+  proposal_not: String
+  proposal_gt: String
+  proposal_lt: String
+  proposal_gte: String
+  proposal_lte: String
+  proposal_in: [String!]
+  proposal_not_in: [String!]
+  proposal_contains: String
+  proposal_not_contains: String
+  proposal_starts_with: String
+  proposal_not_starts_with: String
+  proposal_ends_with: String
+  proposal_not_ends_with: String
+  content: Content
+  content_not: Content
+}
+
+enum Vote_orderBy {
+  id
+  transaction
+  timestamp
+  voter
+  proposal
+  content
+}

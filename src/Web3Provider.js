@@ -12,6 +12,11 @@ const VOTEBOX_ADDRESSES = {
   '3': '0x79a367A7045d359765f9CdE9424304c85b9F7A25',
 };
 
+const VOTER_SIDE_ENUM = {
+  FOR: 1,
+  AGAINST: 2,
+};
+
 const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider,
@@ -32,16 +37,31 @@ let web3Provider;
 let ethersProvider;
 let ethersSigner;
 
+const defaultEthersProvider = new ethers.providers.InfuraProvider(
+  'ropsten',
+  'e78c03298dbe469f81af846f6727d3d8',
+);
+
 class Web3ContextProvider extends Component {
   state = {
-    currentProvider: '',
     isConnected: false,
     isConnecting: false,
     defaultChainId: '',
     chainID: '',
     chainName: '',
     address: '',
+    blockNumber: '',
   };
+
+  async componentDidMount() {
+    const blockNumber = await defaultEthersProvider.getBlockNumber();
+    debug('blockNumber', blockNumber);
+    this.setState(() => {
+      return {
+        blockNumber: blockNumber,
+      };
+    });
+  }
 
   connect = async () => {
     this.setState(() => {
@@ -52,6 +72,7 @@ class Web3ContextProvider extends Component {
 
     web3Provider = await web3Modal.connect();
     web3Provider.autoRefreshOnNetworkChange = false;
+
     ethersProvider = new ethers.providers.Web3Provider(web3Provider, 'any');
     debug('ethers ethersProvider', ethersProvider);
     ethersSigner = ethersProvider.getSigner();
@@ -59,6 +80,7 @@ class Web3ContextProvider extends Component {
     const [accounts, network] = await Promise.all([
       ethersProvider.listAccounts(),
       ethersProvider.getNetwork(),
+      ethersProvider.getBlockNumber(),
     ]);
     debug('accounts', accounts);
     debug('network', network);
@@ -127,20 +149,23 @@ class Web3ContextProvider extends Component {
     );
     debug('propose tx', tx);
     const receipt = await tx.wait();
+    debug('receipt', receipt);
   };
 
-  vote = async () => {
+  vote = async (proposalID, voterSide) => {
     debug('vote', this.state.chainID.toString());
     const voteBoxContract = new ethers.Contract(
       VOTEBOX_ADDRESSES[this.state.chainID.toString()],
       VoteBoxABI,
       ethersSigner,
     );
-    const tx = await voteBoxContract.vote(1, 2, {
-      gasLimit: 750000,
-    });
+    const tx = await voteBoxContract.vote(
+      proposalID,
+      VOTER_SIDE_ENUM[voterSide],
+    );
     debug('vote tx', tx);
     const receipt = await tx.wait();
+    debug('receipt', receipt);
   };
 
   render() {
@@ -152,6 +177,7 @@ class Web3ContextProvider extends Component {
           address: this.state.address,
           isConnected: this.state.isConnected,
           isConnecting: this.state.isConnecting,
+          blockNumber: this.state.blockNumber,
           connect: this.connect,
           disconnect: this.disconnect,
           propose: this.propose,

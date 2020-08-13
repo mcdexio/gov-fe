@@ -81,7 +81,17 @@ class Web3ContextProvider extends Component {
       };
     });
 
-    web3Provider = await web3Modal.connect();
+    web3Provider = await web3Modal.connect().catch((e) => {
+      debug(e);
+      this.setState(() => {
+        return {
+          isConnecting: false,
+        };
+      });
+      return 'error';
+    });
+    if (web3Provider === 'error') return;
+
     web3Provider.autoRefreshOnNetworkChange = false;
     debug('web3Provider', web3Provider);
 
@@ -96,9 +106,6 @@ class Web3ContextProvider extends Component {
     ]);
     debug('accounts', accounts);
     debug('network', network);
-    // let history = useHistory();
-    // if (this.props.match.params.chain !== network.name)
-    //   history.push(`/${network.name}`);
 
     this.setState(() => {
       return {
@@ -110,6 +117,8 @@ class Web3ContextProvider extends Component {
         blockNumber: blockNumber,
       };
     });
+    if (this.props.match.params.chain !== network.name)
+      this.props.history.push(`/${network.name}`);
 
     debug('connected, ethersProvider:', ethersProvider);
 
@@ -118,8 +127,8 @@ class Web3ContextProvider extends Component {
       this.setState(() => {
         return {
           address:
-            web3Provider.selectedAddress.toLowerCase() ||
-            web3Provider.accounts[0].toLowerCase(),
+            web3Provider.selectedAddress?.toLowerCase() ||
+            web3Provider.accounts[0]?.toLowerCase(),
         };
       });
     });
@@ -133,6 +142,9 @@ class Web3ContextProvider extends Component {
           chainName: network.name,
         };
       });
+
+      if (this.props.match.params.chain !== network.name)
+        this.props.history.push(`/${network.name}`);
     });
   };
 
@@ -154,39 +166,60 @@ class Web3ContextProvider extends Component {
     });
   };
 
-  propose = async () => {
-    debug('this.state.chainName', this.state.chainName);
-    debug('VOTING_BOX[this.state.chainName]', VOTING_BOX[this.state.chainName]);
-    const voteBoxContract = new ethers.Contract(
-      VOTING_BOX[this.state.chainName],
-      VoteBoxABI,
-      ethersSigner,
-    );
-    debug('voteBoxContract', voteBoxContract);
-    const tx = await voteBoxContract.propose(
-      'https://forum.mcdex.io/t/remove-the-mining-effective-setting/104',
-      8482380,
-      8517338,
-    );
-    debug('propose tx', tx);
-    const receipt = await tx.wait();
-    debug('receipt', receipt);
+  propose = async (
+    newProposalLink,
+    newProposalStartBlock,
+    newProposalEndBlock,
+    refetch,
+  ) => {
+    try {
+      debug('newProposalLink', newProposalLink);
+      debug('newProposalStartBlock', newProposalStartBlock);
+      debug('newProposalEndBlock', newProposalEndBlock);
+      debug('this.state.chainName', this.state.chainName);
+      debug(
+        'VOTING_BOX[this.state.chainName]',
+        VOTING_BOX[this.state.chainName],
+      );
+      const voteBoxContract = new ethers.Contract(
+        VOTING_BOX[this.state.chainName],
+        VoteBoxABI,
+        ethersSigner,
+      );
+      debug('voteBoxContract', voteBoxContract);
+      const tx = await voteBoxContract.propose(
+        newProposalLink,
+        newProposalStartBlock,
+        newProposalEndBlock,
+      );
+      debug('propose tx', tx);
+      const receipt = await tx.wait();
+      debug('receipt', receipt);
+      refetch();
+    } catch (error) {
+      debug('propose() error', error);
+    }
   };
 
-  vote = async (proposalID, voterSide) => {
-    debug('vote', this.state.chainID.toString());
-    const voteBoxContract = new ethers.Contract(
-      VOTING_BOX[this.state.chainName],
-      VoteBoxABI,
-      ethersSigner,
-    );
-    const tx = await voteBoxContract.vote(
-      proposalID,
-      VOTER_SIDE_ENUM[voterSide],
-    );
-    debug('vote tx', tx);
-    const receipt = await tx.wait();
-    debug('receipt', receipt);
+  vote = async (proposalID, voterSide, refetch) => {
+    try {
+      debug('vote', this.state.chainID.toString());
+      const voteBoxContract = new ethers.Contract(
+        VOTING_BOX[this.state.chainName],
+        VoteBoxABI,
+        ethersSigner,
+      );
+      const tx = await voteBoxContract.vote(
+        proposalID,
+        VOTER_SIDE_ENUM[voterSide],
+      );
+      debug('vote tx', tx);
+      const receipt = await tx.wait();
+      debug('receipt', receipt);
+      refetch();
+    } catch (error) {
+      debug('vote() error', error);
+    }
   };
 
   render() {
@@ -210,6 +243,14 @@ class Web3ContextProvider extends Component {
     );
   }
 }
-const Web3Provider = withRouter(Web3ContextProvider);
+
+function withMyHook(Component) {
+  return function WrappedComponent(props) {
+    let history = useHistory();
+    return <Component {...props} history={history} />;
+  };
+}
+
+const Web3Provider = withMyHook(withRouter(Web3ContextProvider));
 
 export { Web3Provider, Consumer as Web3Consumer };

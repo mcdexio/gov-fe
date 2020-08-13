@@ -3,14 +3,13 @@ import React, { Component } from 'react';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import ethers from 'ethers';
+import { withRouter, useHistory } from 'react-router-dom';
+
 import { abi as VoteBoxABI } from './abi/VoteBox.json';
+import { VOTING_BOX } from './utils';
 
 const debug = Debug('Web3Provider');
 const { Provider, Consumer } = React.createContext();
-
-const VOTEBOX_ADDRESSES = {
-  '3': '0x79a367A7045d359765f9CdE9424304c85b9F7A25',
-};
 
 const VOTER_SIDE_ENUM = {
   FOR: 1,
@@ -27,7 +26,6 @@ const providerOptions = {
 };
 
 const web3Modal = new Web3Modal({
-  network: 'ropsten',
   cacheProvider: true,
   theme: 'dark',
   providerOptions,
@@ -37,25 +35,38 @@ let web3Provider;
 let ethersProvider;
 let ethersSigner;
 
-const defaultEthersProvider = new ethers.providers.InfuraProvider(
-  'ropsten',
-  'e78c03298dbe469f81af846f6727d3d8',
-);
+const defaultEthersProvider = {
+  ropsten: new ethers.providers.InfuraProvider(
+    'ropsten',
+    'e78c03298dbe469f81af846f6727d3d8',
+  ),
+  kovan: new ethers.providers.InfuraProvider(
+    'kovan',
+    'e78c03298dbe469f81af846f6727d3d8',
+  ),
+};
 
 class Web3ContextProvider extends Component {
-  state = {
-    isConnected: false,
-    isConnecting: false,
-    defaultChainId: '',
-    chainID: '',
-    chainName: '',
-    address: '',
-    blockNumber: '',
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isConnected: false,
+      isConnecting: false,
+      defaultChainId: '',
+      chainID: '',
+      chainName: '',
+      address: '',
+      blockNumber: '',
+    };
+  }
 
   async componentDidMount() {
-    const blockNumber = await defaultEthersProvider.getBlockNumber();
+    const blockNumber = await defaultEthersProvider[
+      this.props.match.params.chain
+    ].getBlockNumber();
     debug('blockNumber', blockNumber);
+    debug('this.props.match', this.props.match);
+    debug('this.state', this.state);
     this.setState(() => {
       return {
         blockNumber: blockNumber,
@@ -72,18 +83,22 @@ class Web3ContextProvider extends Component {
 
     web3Provider = await web3Modal.connect();
     web3Provider.autoRefreshOnNetworkChange = false;
+    debug('web3Provider', web3Provider);
 
     ethersProvider = new ethers.providers.Web3Provider(web3Provider, 'any');
-    debug('ethers ethersProvider', ethersProvider);
+    debug('ethersProvider', ethersProvider);
     ethersSigner = ethersProvider.getSigner();
 
-    const [accounts, network] = await Promise.all([
+    const [accounts, network, blockNumber] = await Promise.all([
       ethersProvider.listAccounts(),
       ethersProvider.getNetwork(),
       ethersProvider.getBlockNumber(),
     ]);
     debug('accounts', accounts);
     debug('network', network);
+    // let history = useHistory();
+    // if (this.props.match.params.chain !== network.name)
+    //   history.push(`/${network.name}`);
 
     this.setState(() => {
       return {
@@ -91,7 +106,8 @@ class Web3ContextProvider extends Component {
         isConnected: true,
         isConnecting: false,
         chainID: network.chainId,
-        chainName: network.chainName,
+        chainName: network.name,
+        blockNumber: blockNumber,
       };
     });
 
@@ -112,7 +128,7 @@ class Web3ContextProvider extends Component {
       this.setState(() => {
         return {
           chainID: network.chainId,
-          chainName: network.chainName,
+          chainName: network.name,
         };
       });
     });
@@ -137,15 +153,18 @@ class Web3ContextProvider extends Component {
   };
 
   propose = async () => {
+    debug('this.state.chainName', this.state.chainName);
+    debug('VOTING_BOX[this.state.chainName]', VOTING_BOX[this.state.chainName]);
     const voteBoxContract = new ethers.Contract(
-      VOTEBOX_ADDRESSES[this.state.chainID.toString()],
+      VOTING_BOX[this.state.chainName],
       VoteBoxABI,
       ethersSigner,
     );
+    debug('voteBoxContract', voteBoxContract);
     const tx = await voteBoxContract.propose(
-      'https://forum.mcdex.io/t/discussion-about-liquidity-mining-round-shang/24',
-      8458758,
-      8464518,
+      'https://forum.mcdex.io/t/remove-the-mining-effective-setting/104',
+      8482380,
+      8517338,
     );
     debug('propose tx', tx);
     const receipt = await tx.wait();
@@ -155,7 +174,7 @@ class Web3ContextProvider extends Component {
   vote = async (proposalID, voterSide) => {
     debug('vote', this.state.chainID.toString());
     const voteBoxContract = new ethers.Contract(
-      VOTEBOX_ADDRESSES[this.state.chainID.toString()],
+      VOTING_BOX[this.state.chainName],
       VoteBoxABI,
       ethersSigner,
     );
@@ -189,5 +208,6 @@ class Web3ContextProvider extends Component {
     );
   }
 }
+const Web3Provider = withRouter(Web3ContextProvider);
 
-export { Web3ContextProvider as Web3Provider, Consumer as Web3Consumer };
+export { Web3Provider, Consumer as Web3Consumer };

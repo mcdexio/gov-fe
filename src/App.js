@@ -7,6 +7,7 @@ import Proposals from './Proposals';
 import Proposal from './Proposal';
 import Voter from './Voter';
 import Footer from './Footer';
+import { Web3Provider } from './Web3Provider';
 
 const appStyles = (theme) => ({
   appGrid: {
@@ -14,7 +15,7 @@ const appStyles = (theme) => ({
     display: 'grid',
     padding: '0',
     gridGap: '0',
-    gridTemplateRows: '4.5em 1fr auto',
+    gridTemplateRows: '5.5em 1fr auto',
     gridTemplateAreas: `'header' 'maingrid' 'footer'`,
   },
 });
@@ -22,11 +23,13 @@ const appStyles = (theme) => ({
 const App = withStyles(appStyles)(({ classes, match }) => {
   return (
     <div className={classes.appGrid}>
-      <Header />
-      <Route exact path={`${match.path}`} component={Proposals} />
-      <Route path={`${match.path}/proposal/:id`} component={Proposal} />
-      <Route path={`${match.path}/voter/:address`} component={Voter} />
-      <Footer />
+      <Web3Provider>
+        <Header />
+        <Route exact path={`${match.path}`} component={Proposals} />
+        <Route path={`${match.path}/proposal/:id`} component={Proposal} />
+        <Route path={`${match.path}/voter/:address`} component={Voter} />
+        <Footer />
+      </Web3Provider>
     </div>
   );
 });

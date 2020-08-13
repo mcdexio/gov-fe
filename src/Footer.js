@@ -11,6 +11,7 @@ import { FaTwitter } from 'react-icons/fa';
 import { FaReddit } from 'react-icons/fa';
 import { withRouter } from 'react-router-dom';
 import classNames from 'classnames';
+import { useHistory } from 'react-router-dom';
 
 import {
   Logo,
@@ -18,6 +19,8 @@ import {
   BLOCHAIN_EXPLORER_BASE_URL,
   SUPPORTED_CHAINS,
 } from './utils';
+import { Web3Consumer } from './Web3Provider';
+
 const debug = Debug('Footer');
 
 const styles = (theme) => ({
@@ -123,131 +126,145 @@ const styles = (theme) => ({
 
 const Footer = ({ classes, match }) => {
   debug('match', match);
+  let history = useHistory();
   return (
-    <div className={classes.root}>
-      <div className={classes.row1}>
-        <div className={classes.column}>
-          <div className={classes.title}>
-            <Logo width={75} />
+    <Web3Consumer>
+      {(web3Context) => {
+        return (
+          <div className={classes.root}>
+            <div className={classes.row1}>
+              <div className={classes.column}>
+                <div className={classes.title}>
+                  <Logo width={75} />
+                </div>
+                <div className={classes.description}>
+                  <p>
+                    Monte Carlo Decentralized Exchange is a crypto trading
+                    platform.
+                  </p>
+                  <p>
+                    MCDEX is powered by the Mai Protocol smart contracts
+                    deployed on the Ethereum blockchain.
+                  </p>
+                  <p>
+                    The Mai Protocol smart contracts are fully audited by Open
+                    Zeppelin, Consensys and Chain Security.
+                  </p>
+                </div>
+              </div>
+              <div className={classes.column}>
+                <div className={classes.title}>Protocol</div>
+                <a href="https://mcdex.io/references/#/en-US/white-paper">
+                  Whitepaper
+                </a>
+                <a href="https://mcdex.io/trade">Trade</a>
+                <a href="https://mcdex.io/doc/api">API</a>
+                <a href="https://support.mcdex.io/hc/en-us">Support</a>
+              </div>
+              <div className={classes.column}>
+                <div className={classes.title}>Governance</div>
+                <a href="https://forum.mcdex.io/t/a-lightweight-voting-system-for-mcdex/89">
+                  Overview
+                </a>
+                <a href="https://forum.mcdex.io/t/about-the-governance-category/21">
+                  Forum
+                </a>
+              </div>
+              <div className={classes.column}>
+                <div className={classes.title}>Company</div>
+                <a href="mailto:contact@mcdex.io">contact@mcdex.io</a>
+                <a href="https://mcdex.io/homepage/pc-careers.html">Careers</a>
+              </div>
+              <div className={classes.column}>
+                <a
+                  className={classes.icon}
+                  href="https://twitter.com/MonteCarloDEX"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <FaTwitter />
+                </a>
+                <a
+                  className={classes.icon}
+                  href="https://discord.gg/uut3V3D"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <FaDiscord />
+                </a>
+                <a
+                  className={classes.icon}
+                  href="https://t.me/Mcdex"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <FaTelegramPlane />
+                </a>
+                <a
+                  className={classes.icon}
+                  href="https://www.reddit.com/r/MCDEX/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <FaReddit />
+                </a>
+                <a
+                  className={classes.icon}
+                  href="https://medium.com/@montecarlodex"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <FaMedium />
+                </a>
+              </div>
+            </div>
+            <div className={classes.row2}>
+              <div className={classes.left}></div>
+              <div className={classes.middle}>
+                <LogoSmall width={28} className={classes.logoSmall} /> MCB Token
+                Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
+                <a
+                  className={classNames('hint--right', classes.externalLink)}
+                  aria-label="open in Etherscan"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  href={`${BLOCHAIN_EXPLORER_BASE_URL['mainnet']}/address/0x4e352cf164e64adcbad318c3a1e222e9eba4ce42`}
+                >
+                  <FaExternalLinkAlt />
+                </a>
+              </div>
+              <div className={classes.right}>
+                {' '}
+                <Select
+                  labelId="chain-selector"
+                  id="chain-selector"
+                  disabled={web3Context.isConnected}
+                  value={match.params.chain}
+                  onChange={(event) => history.push(`/${event.target.value}`)}
+                  classes={{
+                    root: classes.selectRoot,
+                    select: classes.selectSelect,
+                    icon: classes.selectIcon,
+                  }}
+                  MenuProps={{ classes: { paper: classes.selectPaper } }}
+                  className={classNames(
+                    web3Context.isConnected && 'hint--left',
+                    web3Context.isConnected && 'hint--bounce',
+                  )}
+                  data-hint="Use your Wallet to switch chain"
+                >
+                  {SUPPORTED_CHAINS.map((chain, index) => (
+                    <MenuItem key={index} value={chain}>
+                      {chain}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
           </div>
-          <div className={classes.description}>
-            <p>
-              Monte Carlo Decentralized Exchange is a crypto trading platform.
-            </p>
-            <p>
-              MCDEX is powered by the Mai Protocol smart contracts deployed on
-              the Ethereum blockchain.
-            </p>
-            <p>
-              The Mai Protocol smart contracts are fully audited by Open
-              Zeppelin, Consensys and Chain Security.
-            </p>
-          </div>
-        </div>
-        <div className={classes.column}>
-          <div className={classes.title}>Protocol</div>
-          <a href="https://mcdex.io/references/#/en-US/white-paper">
-            Whitepaper
-          </a>
-          <a href="https://mcdex.io/trade">Trade</a>
-          <a href="https://mcdex.io/doc/api">API</a>
-          <a href="https://support.mcdex.io/hc/en-us">Support</a>
-        </div>
-        <div className={classes.column}>
-          <div className={classes.title}>Governance</div>
-          <a href="https://forum.mcdex.io/t/a-lightweight-voting-system-for-mcdex/89">
-            Overview
-          </a>
-          <a href="https://forum.mcdex.io/t/about-the-governance-category/21">
-            Forum
-          </a>
-        </div>
-        <div className={classes.column}>
-          <div className={classes.title}>Company</div>
-          <a href="mailto:contact@mcdex.io">contact@mcdex.io</a>
-          <a href="https://mcdex.io/homepage/pc-careers.html">Careers</a>
-        </div>
-        <div className={classes.column}>
-          <a
-            className={classes.icon}
-            href="https://twitter.com/MonteCarloDEX"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <FaTwitter />
-          </a>
-          <a
-            className={classes.icon}
-            href="https://discord.gg/uut3V3D"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <FaDiscord />
-          </a>
-          <a
-            className={classes.icon}
-            href="https://t.me/Mcdex"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <FaTelegramPlane />
-          </a>
-          <a
-            className={classes.icon}
-            href="https://www.reddit.com/r/MCDEX/"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <FaReddit />
-          </a>
-          <a
-            className={classes.icon}
-            href="https://medium.com/@montecarlodex"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <FaMedium />
-          </a>
-        </div>
-      </div>
-      <div className={classes.row2}>
-        <div className={classes.left}></div>
-        <div className={classes.middle}>
-          <LogoSmall width={28} className={classes.logoSmall} /> MCB Token
-          Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
-          <a
-            className={classNames('hint--right', classes.externalLink)}
-            aria-label="open in Etherscan"
-            target="_blank"
-            rel="noreferrer noopener"
-            href={`${BLOCHAIN_EXPLORER_BASE_URL['mainnet']}/address/0x4e352cf164e64adcbad318c3a1e222e9eba4ce42`}
-          >
-            <FaExternalLinkAlt />
-          </a>
-        </div>
-        <div className={classes.right}>
-          {' '}
-          <Select
-            labelId="chain-selector"
-            id="chain-selector"
-            value={0}
-            onChange={() => debug('select onChange')}
-            classes={{
-              root: classes.selectRoot,
-              select: classes.selectSelect,
-              icon: classes.selectIcon,
-            }}
-            MenuProps={{ classes: { paper: classes.selectPaper } }}
-          >
-            {SUPPORTED_CHAINS.map((chain, index) => (
-              <MenuItem key={index} value={index}>
-                {chain}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-      </div>
-    </div>
+        );
+      }}
+    </Web3Consumer>
   );
 };
 

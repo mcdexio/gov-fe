@@ -184,17 +184,19 @@ const styles = (theme) => ({
     justifyContent: 'space-between',
   },
   yesButton: {
+    fontWeight: 600,
     marginTop: '2rem',
-    border: '2px solid rgb(89, 239, 236)',
+    border: '1px solid rgb(89, 239, 236)',
     backgroundColor: 'transparent',
     color: 'rgb(89, 239, 236)',
     '&:hover': {
-      border: '2px solid rgb(89, 239, 236)',
+      border: '1px solid rgb(89, 239, 236)',
       backgroundColor: 'rgb(89, 239, 236)',
       color: 'white',
     },
   },
   noButton: {
+    fontWeight: 600,
     marginTop: '2rem',
     border: '1px solid rgb(217, 128, 65)',
     backgroundColor: 'transparent',
@@ -220,7 +222,7 @@ const styles = (theme) => ({
 const Proposal = ({ classes, match, location }) => {
   debug('match', match);
   debug('location', location);
-  // if location.state.endBlock need fetch proposals!
+
   const { data: { proposal: { endBlock } = {} } = {} } = useQuery(
     getProposalByID,
     {
@@ -234,8 +236,9 @@ const Proposal = ({ classes, match, location }) => {
   debug('balanceBlock', balanceBlock);
   const skip = balanceBlock === undefined ? true : false;
 
-  const { loading, error, data } = useQuery(getProposal, {
+  const { loading, error, data, refetch } = useQuery(getProposal, {
     client: SUBGRAPH_CLIENTS[match.params.chain],
+    notifyOnNetworkStatusChange: true,
     variables: {
       id: match.params.id.toLowerCase(),
       addressMCB: MCB_ADDRESS[match.params.chain],
@@ -455,11 +458,15 @@ const Proposal = ({ classes, match, location }) => {
                           }}
                           onClick={() => {
                             if (web3Context.isConnected) {
-                              web3Context.vote(data.proposal.id, 'FOR');
+                              web3Context.vote(
+                                data.proposal.id,
+                                'FOR',
+                                refetch,
+                              );
                             }
                           }}
                         >
-                          {`Vote FOR to the proposal`}
+                          {`Vote FOR the proposal`}
                         </Button>
                       </div>
                     )}
@@ -557,7 +564,11 @@ const Proposal = ({ classes, match, location }) => {
                           data-hint="Please connect your Wallet first"
                           onClick={() => {
                             if (web3Context.isConnected) {
-                              web3Context.vote(data.proposal.id, 'AGAINST');
+                              web3Context.vote(
+                                data.proposal.id,
+                                'AGAINST',
+                                refetch,
+                              );
                             }
                           }}
                         >

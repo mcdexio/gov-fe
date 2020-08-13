@@ -141,15 +141,33 @@ export const getProposal = gql`
 `;
 
 export const getVoter = gql`
-  query getProposal($id: ID!) {
+  query getProposal($id: ID!, $addressUniswap: String!) {
+    uniMCBAccount: account(id: $addressUniswap) {
+      id
+      balancesLatest {
+        id
+        balance
+        totalSupply
+        block
+      }
+    }
     account(id: $id) {
       id
+      balances: balancesLatest {
+        id
+        balance
+        totalSupply
+        contract {
+          id
+        }
+      }
       votes {
         id
         timestamp
         proposal {
           id
           link
+          endBlock
         }
         content
       }

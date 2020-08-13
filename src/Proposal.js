@@ -92,30 +92,62 @@ const styles = (theme) => ({
     color: 'rgb(217, 128, 65)',
   },
   statusActive: {
-    borderColor: 'rgb(89, 239, 236)',
-    color: 'rgb(89, 239, 236)',
+    borderColor: 'rgb(147, 182, 242)',
+    color: 'rgb(147, 182, 242)',
+    animation: '$changeColor 3s normal infinite',
+  },
+  '@keyframes changeColor': {
+    '0%': {
+      borderColor: 'rgb(147, 182, 242)',
+      color: 'rgb(147, 182, 242)',
+      backgroundColor: 'white',
+    },
+    '50%': {
+      borderColor: 'rgb(147, 182, 242)',
+      color: 'white',
+      backgroundColor: 'rgb(147, 182, 242)',
+    },
+    '100%': {
+      borderColor: 'rgb(147, 182, 242)',
+      color: 'rgb(147, 182, 242)',
+      backgroundColor: 'white',
+    },
   },
   proposalAuthor: {
     color: 'white',
     display: 'flex',
     alignItems: 'center',
   },
+  flexCenter: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   authorRight: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-around',
+    justifyContent: 'end',
+    marginBottom: '5px',
+    marginLeft: '5px',
+  },
+  proposerTitle: {
+    fontWeight: 600,
+  },
+  proposer: {
+    display: 'flex',
   },
   authorAddress: { color: 'rgb(121, 132, 161)' },
   proposalID: {
     color: 'rgb(121, 132, 161)',
     fontWeight: 600,
   },
-  bottomContainer: { display: 'flex', marginTop: '1.875rem' },
+  paperContainer: { display: 'flex', marginTop: '3.875rem' },
   resultPaper: {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
     padding: '2rem',
+    justifyContent: 'space-between',
   },
   yesResultPaper: {
     marginRight: '15px',
@@ -151,8 +183,38 @@ const styles = (theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
-  yesButton: {},
-  noButton: {},
+  yesButton: {
+    marginTop: '2rem',
+    border: '2px solid rgb(89, 239, 236)',
+    backgroundColor: 'transparent',
+    color: 'rgb(89, 239, 236)',
+    '&:hover': {
+      border: '2px solid rgb(89, 239, 236)',
+      backgroundColor: 'rgb(89, 239, 236)',
+      color: 'white',
+    },
+  },
+  noButton: {
+    marginTop: '2rem',
+    border: '1px solid rgb(217, 128, 65)',
+    backgroundColor: 'transparent',
+    color: 'rgb(217, 128, 65)',
+    '&:hover': {
+      border: '1px solid rgb(217, 128, 65)',
+      backgroundColor: 'rgb(217, 128, 65)',
+      color: 'white',
+    },
+  },
+  buttonDisabled: {
+    color: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: 'transparent',
+    border: '1px solid rgba(0, 0, 0, 0.4)',
+    '&:hover': {
+      color: 'rgba(0, 0, 0, 0.4)',
+      backgroundColor: 'transparent',
+      border: '1px solid rgba(0, 0, 0, 0.4)',
+    },
+  },
 });
 
 const Proposal = ({ classes, match, location }) => {
@@ -175,7 +237,7 @@ const Proposal = ({ classes, match, location }) => {
   const { loading, error, data } = useQuery(getProposal, {
     client: SUBGRAPH_CLIENTS[match.params.chain],
     variables: {
-      id: match.params.id,
+      id: match.params.id.toLowerCase(),
       addressMCB: MCB_ADDRESS[match.params.chain],
       addressUniswap: UNI_MCB_POOL[match.params.chain],
       balanceBlock,
@@ -248,7 +310,8 @@ const Proposal = ({ classes, match, location }) => {
                       href={data.proposal.link}
                       data-hint="Click to read the proposal"
                     >
-                      {linkToTitle(data.proposal.link)} <FaExternalLinkAlt />
+                      {linkToTitle(data.proposal.link)}{' '}
+                      <FaExternalLinkAlt size={'1.5rem'} />
                     </a>
                     <div className={classes.proposalSubTitle}>
                       <div
@@ -271,190 +334,236 @@ const Proposal = ({ classes, match, location }) => {
                     className={classes.proposalAuthor}
                     to={`../../${match.params.chain}/voter/${data.proposal.transaction.from.id}`}
                   >
-                    <Identicon
-                      size="48"
-                      value={data.proposal.transaction.from.id}
-                    />
-                    <div className={classes.authorRight}>
-                      <div>Proposer</div>
-                      <div className={classes.authorAddress}>
-                        {formatAddress(data.proposal.transaction.from.id)}
+                    <div className={classes.proposer}>
+                      <Identicon
+                        size="48"
+                        value={data.proposal.transaction.from.id}
+                      />
+                      <div className={classes.authorRight}>
+                        <div className={classes.proposerTitle}>Proposer</div>
+                        <div className={classes.authorAddress}>
+                          {formatAddress(data.proposal.transaction.from.id)}
+                        </div>
                       </div>
                     </div>
                   </Link>
                 </div>
-                <div className={classes.bottomContainer}>
+                <div className={classes.paperContainer}>
                   <Paper
                     className={classNames(
                       classes.resultPaper,
                       classes.yesResultPaper,
                     )}
                   >
-                    <div className={classes.totalVoteResult}>
-                      <div>For</div>
-                      <div
-                        className={classNames('hint--bottom', 'hint--bounce')}
-                        data-hint={`${formatMCB(
-                          yesVotesMCB,
-                        )} MCB \u000A${formatMCB(yesVotesUniMCB)} UNI`}
-                      >
-                        {formatMCB(yesVotes)} MCB
-                      </div>
-                    </div>
-                    <LinearProgress
-                      classes={{
-                        root: classes.rootBar,
-                        colorPrimary: classes.bar1,
-                        barColorPrimary: classes.forBar,
-                      }}
-                      variant="determinate"
-                      value={yesVotesPct * 100}
-                    />
-
-                    <List
-                      component="nav"
-                      className={classes.addressList}
-                      aria-label="list of addresses"
-                    >
-                      <ListItem
-                        className={classes.addressListHeader}
-                        key="header"
-                      >
+                    <div>
+                      <div className={classes.totalVoteResult}>
+                        <div>For</div>
                         <div
                           className={classNames('hint--bottom', 'hint--bounce')}
-                          data-hint={`${yesVotersMCB} used MCB \u000A${yesVotersUni} used UNI`}
+                          data-hint={`${formatMCB(
+                            yesVotesMCB,
+                          )} MCB \u000A${formatMCB(yesVotesUniMCB)} UNI`}
                         >
-                          {yesVoters} {pluralize('address', yesVoters)}
+                          {formatMCB(yesVotes)} MCB
                         </div>
-                        <div>Votes</div>
-                      </ListItem>
-                      {data.proposal.votes
-                        .filter((vote) => vote.content === 'FOR')
-                        .map((vote, index) => {
-                          const mcbBalance =
-                            vote.voter.votesMCB.length > 0
-                              ? parseFloat(vote.voter.votesMCB[0].balance)
-                              : 0;
-                          const uniBalance =
-                            vote.voter.votesUni.length > 0
-                              ? parseFloat(vote.voter.votesUni[0].balance)
-                              : 0;
-                          return (
-                            <Link
-                              to={`../../${match.params.chain}/voter/${vote.voter.id}`}
-                              key={index}
-                            >
-                              <Divider />
-                              <ListItem button className={classes.addressItem}>
-                                <div>{formatAddress(vote.voter.id)}</div>
-                                <div
-                                  className={classNames(
-                                    'hint--bottom',
-                                    'hint--bounce',
-                                  )}
-                                  data-hint={`${formatMCB(
-                                    mcbBalance,
-                                  )} MCB \u000A${formatMCB(
-                                    yesVotesUniMCB,
-                                  )} UNI`}
-                                >
-                                  {formatMCB(mcbBalance + yesVotesUniMCB)} MCB
-                                </div>
-                              </ListItem>
-                            </Link>
-                          );
-                        })}
-                    </List>
-                    {votingStatus === 'started' && (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.yesButton}
-                        onClick={() =>
-                          web3Context.vote(data.proposal.id, 'FOR')
-                        }
+                      </div>
+                      <LinearProgress
+                        classes={{
+                          root: classes.rootBar,
+                          colorPrimary: classes.bar1,
+                          barColorPrimary: classes.forBar,
+                        }}
+                        variant="determinate"
+                        value={yesVotesPct * 100}
+                      />
+
+                      <List
+                        component="nav"
+                        className={classes.addressList}
+                        aria-label="list of addresses"
                       >
-                        {`Vote FOR to the proposal`}
-                      </Button>
+                        <ListItem
+                          className={classes.addressListHeader}
+                          key="header"
+                        >
+                          <div
+                            className={classNames(
+                              'hint--bottom',
+                              'hint--bounce',
+                            )}
+                            data-hint={`${yesVotersMCB} used MCB \u000A${yesVotersUni} used UNI`}
+                          >
+                            {yesVoters} {pluralize('address', yesVoters)}
+                          </div>
+                          <div>Votes</div>
+                        </ListItem>
+                        {data.proposal.votes
+                          .filter((vote) => vote.content === 'FOR')
+                          .map((vote, index) => {
+                            const mcbBalance =
+                              vote.voter.votesMCB.length > 0
+                                ? parseFloat(vote.voter.votesMCB[0].balance)
+                                : 0;
+                            const uniBalance =
+                              vote.voter.votesUni.length > 0
+                                ? parseFloat(vote.voter.votesUni[0].balance)
+                                : 0;
+                            return (
+                              <Link
+                                to={`../../${match.params.chain}/voter/${vote.voter.id}`}
+                                key={index}
+                              >
+                                <Divider />
+                                <ListItem
+                                  button
+                                  className={classes.addressItem}
+                                >
+                                  <div>{formatAddress(vote.voter.id)}</div>
+                                  <div
+                                    className={classNames(
+                                      'hint--bottom',
+                                      'hint--bounce',
+                                    )}
+                                    data-hint={`${formatMCB(
+                                      mcbBalance,
+                                    )} MCB \u000A${formatMCB(
+                                      yesVotesUniMCB,
+                                    )} UNI`}
+                                  >
+                                    {formatMCB(mcbBalance + yesVotesUniMCB)} MCB
+                                  </div>
+                                </ListItem>
+                              </Link>
+                            );
+                          })}
+                      </List>
+                    </div>
+                    {votingStatus === 'Active' && (
+                      <div className={classes.flexCenter}>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          disableElevation={true}
+                          className={classNames(
+                            !web3Context.isConnected && classes.buttonDisabled,
+                            !web3Context.isConnected && 'hint--top',
+                            !web3Context.isConnected && 'hint--bounce',
+                          )}
+                          data-hint="Please connect your Wallet first"
+                          classes={{
+                            root: classes.yesButton,
+                          }}
+                          onClick={() => {
+                            if (web3Context.isConnected) {
+                              web3Context.vote(data.proposal.id, 'FOR');
+                            }
+                          }}
+                        >
+                          {`Vote FOR to the proposal`}
+                        </Button>
+                      </div>
                     )}
                   </Paper>
                   <Paper className={classes.resultPaper}>
-                    <div className={classes.totalVoteResult}>
-                      <div>Against</div>
-                      <div>{formatMCB(noVotes)} MCB</div>
-                    </div>
-                    <LinearProgress
-                      classes={{
-                        root: classes.rootBar,
-                        colorPrimary: classes.bar1,
-                        barColorPrimary: classes.againstBar,
-                      }}
-                      variant="determinate"
-                      value={noVotesPct * 100}
-                    />
-                    <List
-                      component="nav"
-                      className={classes.addressList}
-                      aria-label="list of addresses"
-                    >
-                      <ListItem
-                        className={classes.addressListHeader}
-                        key="header"
+                    <div>
+                      <div className={classes.totalVoteResult}>
+                        <div>Against</div>
+                        <div>{formatMCB(noVotes)} MCB</div>
+                      </div>
+                      <LinearProgress
+                        classes={{
+                          root: classes.rootBar,
+                          colorPrimary: classes.bar1,
+                          barColorPrimary: classes.againstBar,
+                        }}
+                        variant="determinate"
+                        value={noVotesPct * 100}
+                      />
+                      <List
+                        component="nav"
+                        className={classes.addressList}
+                        aria-label="list of addresses"
                       >
-                        <div
-                          className={classNames('hint--bottom', 'hint--bounce')}
-                          data-hint={`${noVotersMCB} used MCB \u000A${noVotersUni} used UNI`}
+                        <ListItem
+                          className={classes.addressListHeader}
+                          key="header"
                         >
-                          {noVoters} {pluralize('address', noVoters)}
-                        </div>
-                        <div>Votes</div>
-                      </ListItem>
-                      {data.proposal.votes
-                        .filter((vote) => vote.content === 'AGAINST')
-                        .map((vote, index) => {
-                          const mcbBalance =
-                            vote.voter.votesMCB.length > 0
-                              ? parseFloat(vote.voter.votesMCB[0].balance)
-                              : 0;
-                          const uniBalance =
-                            vote.voter.votesUni.length > 0
-                              ? parseFloat(vote.voter.votesUni[0].balance)
-                              : 0;
-                          return (
-                            <Link
-                              to={`../../${match.params.chain}/voter/${vote.voter.id}`}
-                              key={index}
-                            >
-                              <Divider />
-                              <ListItem button className={classes.addressItem}>
-                                <div>{formatAddress(vote.voter.id)}</div>
-                                <div
-                                  className={classNames(
-                                    'hint--bottom',
-                                    'hint--bounce',
-                                  )}
-                                  data-hint={`${formatMCB(
-                                    mcbBalance,
-                                  )} MCB \u000A${formatMCB(noVotesUniMCB)} UNI`}
+                          <div
+                            className={classNames(
+                              'hint--bottom',
+                              'hint--bounce',
+                            )}
+                            data-hint={`${noVotersMCB} used MCB \u000A${noVotersUni} used UNI`}
+                          >
+                            {noVoters} {pluralize('address', noVoters)}
+                          </div>
+                          <div>Votes</div>
+                        </ListItem>
+                        {data.proposal.votes
+                          .filter((vote) => vote.content === 'AGAINST')
+                          .map((vote, index) => {
+                            const mcbBalance =
+                              vote.voter.votesMCB.length > 0
+                                ? parseFloat(vote.voter.votesMCB[0].balance)
+                                : 0;
+                            const uniBalance =
+                              vote.voter.votesUni.length > 0
+                                ? parseFloat(vote.voter.votesUni[0].balance)
+                                : 0;
+                            return (
+                              <Link
+                                to={`../../${match.params.chain}/voter/${vote.voter.id}`}
+                                key={index}
+                              >
+                                <Divider />
+                                <ListItem
+                                  button
+                                  className={classes.addressItem}
                                 >
-                                  {formatMCB(mcbBalance + noVotesUniMCB)} MCB
-                                </div>
-                              </ListItem>
-                            </Link>
-                          );
-                        })}
-                    </List>
-                    {votingStatus === 'started' && (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.noButton}
-                        onClick={() =>
-                          web3Context.vote(data.proposal.id, 'AGAINST')
-                        }
-                      >
-                        {`Vote AGAINST the proposal`}
-                      </Button>
+                                  <div>{formatAddress(vote.voter.id)}</div>
+                                  <div
+                                    className={classNames(
+                                      'hint--bottom',
+                                      'hint--bounce',
+                                    )}
+                                    data-hint={`${formatMCB(
+                                      mcbBalance,
+                                    )} MCB \u000A${formatMCB(
+                                      noVotesUniMCB,
+                                    )} UNI`}
+                                  >
+                                    {formatMCB(mcbBalance + noVotesUniMCB)} MCB
+                                  </div>
+                                </ListItem>
+                              </Link>
+                            );
+                          })}
+                      </List>
+                    </div>
+                    {votingStatus === 'Active' && (
+                      <div className={classes.flexCenter}>
+                        <Button
+                          variant="outlined"
+                          disableElevation={true}
+                          color="primary"
+                          className={classNames(
+                            !web3Context.isConnected && classes.buttonDisabled,
+                            !web3Context.isConnected && 'hint--top',
+                            !web3Context.isConnected && 'hint--bounce',
+                          )}
+                          classes={{
+                            root: classes.noButton,
+                          }}
+                          data-hint="Please connect your Wallet first"
+                          onClick={() => {
+                            if (web3Context.isConnected) {
+                              web3Context.vote(data.proposal.id, 'AGAINST');
+                            }
+                          }}
+                        >
+                          {`Vote AGAINST the proposal`}
+                        </Button>
+                      </div>
                     )}
                   </Paper>
                 </div>

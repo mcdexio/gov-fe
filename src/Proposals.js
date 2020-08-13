@@ -165,6 +165,7 @@ const Proposals = ({ classes, match }) => {
   const { loading, error, data, refetch } = useQuery(getProposals, {
     client: SUBGRAPH_CLIENTS[match.params.chain],
     onCompleted: debug,
+    notifyOnNetworkStatusChange: true,
   });
 
   if (loading)

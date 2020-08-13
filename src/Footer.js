@@ -213,8 +213,8 @@ const Footer = ({ classes, match }) => {
       <div className={classes.row2}>
         <div className={classes.left}></div>
         <div className={classes.middle}>
-          <LogoSmall width={28} className={classes.logoSmall} /> MCB Address:
-          0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
+          <LogoSmall width={28} className={classes.logoSmall} /> MCB Token
+          Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
           <a
             className={classNames('hint--right', classes.externalLink)}
             aria-label="open in Etherscan"

@@ -102,7 +102,7 @@ class Web3ContextProvider extends Component {
 
     this.setState(() => {
       return {
-        address: accounts[0],
+        address: accounts[0].toLowerCase(),
         isConnected: true,
         isConnecting: false,
         chainID: network.chainId,
@@ -117,7 +117,9 @@ class Web3ContextProvider extends Component {
       debug('accountsChanged', accounts);
       this.setState(() => {
         return {
-          address: web3Provider.selectedAddress || web3Provider.accounts[0],
+          address:
+            web3Provider.selectedAddress.toLowerCase() ||
+            web3Provider.accounts[0].toLowerCase(),
         };
       });
     });

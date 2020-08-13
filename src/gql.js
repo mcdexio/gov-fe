@@ -1,22 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const getAccountsBalancesHistory = gql`
-  {
-    accounts(where: { id_in: ["0x2d0f2bbdf6b967dbea7ee453228e754cf85e6f7d"] }) {
-      id
-      balancesHistory(
-        orderBy: block
-        orderDirection: desc
-        first: 1
-        where: { block_lte: 8450228 }
-      ) {
-        balance
-        block
-      }
-    }
-  }
-`;
-
 export const getProposals = gql`
   query getProposal {
     proposals {

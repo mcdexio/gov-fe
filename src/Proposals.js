@@ -1,4 +1,5 @@
 import React from 'react';
+import Debug from 'debug';
 import { useQuery } from '@apollo/client';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
@@ -19,6 +20,7 @@ import { getProposals } from './gql';
 import { Web3Consumer } from './Web3Provider';
 import { SUBGRAPH_CLIENTS, linkToTitle, calcSimpleVotingStatus } from './utils';
 
+const debug = Debug('Proposals');
 const styles = (theme) => ({
   root: {
     gridArea: 'maingrid',
@@ -160,8 +162,9 @@ const Proposals = ({ classes, match }) => {
   const [newProposalStartBlock, setNewProposalStartBlock] = React.useState('');
   const [newProposalEndBlock, setNewProposalEndBlock] = React.useState('');
 
-  const { loading, error, data } = useQuery(getProposals, {
+  const { loading, error, data, refetch } = useQuery(getProposals, {
     client: SUBGRAPH_CLIENTS[match.params.chain],
+    onCompleted: debug,
   });
 
   if (loading)
@@ -323,6 +326,7 @@ const Proposals = ({ classes, match }) => {
                           newProposalLink,
                           newProposalStartBlock,
                           newProposalEndBlock,
+                          refetch,
                         )
                       }
                     >

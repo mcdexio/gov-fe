@@ -34,3 +34,8 @@ a {
   cursor: pointer;
   text-decoration: none;
 }
+
+.hint:after,
+[data-hint]:after {
+  white-space: pre;
+}

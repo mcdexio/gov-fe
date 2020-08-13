@@ -94,6 +94,19 @@ const styles = (theme) => ({
   },
   newProposalButton: {
     minWidth: '0px',
+    color: 'rgba(0, 0, 0, 0.26)',
+    '&:hover': {
+      color: 'white',
+      backgroundColor: 'rgb(147, 182, 242)',
+    },
+  },
+  buttonDisabled: {
+    color: 'rgba(0, 0, 0, 0.26)',
+    backgroundColor: 'rgba(0, 0, 0, 0.12)',
+    '&:hover': {
+      color: 'rgba(0, 0, 0, 0.26)',
+      backgroundColor: 'rgba(0, 0, 0, 0.12)',
+    },
   },
   modal: {
     display: 'flex',
@@ -104,7 +117,7 @@ const styles = (theme) => ({
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
-    margin: '3rem 0',
+    margin: '3.875rem 0',
   },
   listHeader: {
     fontWeight: 700,
@@ -119,7 +132,7 @@ const styles = (theme) => ({
     paddingBottom: '1.75rem',
     alignItems: 'start',
   },
-  paper: {
+  modalPaper: {
     backgroundColor: theme.palette.background.paper,
     borderRadius: '5px',
     boxShadow: theme.shadows[5],
@@ -179,21 +192,30 @@ const Proposals = ({ classes, match }) => {
                   >
                     <ListItem className={classes.listHeader} key="header">
                       <div>All Proposals</div>
-                      {web3Context.address && (
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          className={classNames(
-                            'hint--left',
-                            'hint--bounce',
-                            classes.newProposalButton,
-                          )}
-                          onClick={() => setOpen(true)}
-                          data-hint="Submit a new proposal"
-                        >
-                          <FaPlus size={15} />
-                        </Button>
-                      )}
+
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        disableElevation={true}
+                        className={classNames(
+                          'hint--left',
+                          'hint--bounce',
+                          classes.newProposalButton,
+                          !web3Context.address && classes.buttonDisabled,
+                        )}
+                        onClick={() => {
+                          if (web3Context.address) {
+                            setOpen(true);
+                          }
+                        }}
+                        data-hint={
+                          web3Context.address
+                            ? 'Submit a new proposal'
+                            : 'Please connect your Wallet first'
+                        }
+                      >
+                        <FaPlus size={15} />
+                      </Button>
                     </ListItem>
                     {proposals.reverse().map((proposal) => {
                       const votingStatus = calcSimpleVotingStatus({
@@ -254,7 +276,7 @@ const Proposals = ({ classes, match }) => {
               }}
             >
               <Fade in={open}>
-                <div className={classes.paper}>
+                <div className={classes.modalPaper}>
                   <div className={classes.modalTitle}>
                     New Proposal Submission Form
                   </div>

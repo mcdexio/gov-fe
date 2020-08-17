@@ -74,12 +74,19 @@ export const VOTING_BOX = {
   kovan: '0x66B16B80f09cb80a476f74dEF7315B39Ad53eF8F',
 };
 
-export const linkToTitle = (link) =>
-  link
-    .split('/')[4]
-    .split('-')
-    .join(' ')
-    .replace(/./, (x) => x.toUpperCase());
+export const linkToTitle = (link) => {
+  if (
+    link.includes('https://forum.mcdex.io/t/') &&
+    link.split('/').length === 6
+  ) {
+    return link
+      .split('/')[4]
+      .split('-')
+      .join(' ')
+      .replace(/./, (x) => x.toUpperCase());
+  }
+  return link;
+};
 
 export const formatAddress = (address) =>
   address.substring(0, 6).concat('...').concat(address.slice(-4));

@@ -176,12 +176,12 @@ const styles = (theme) => ({
   },
   paperContainer: { display: 'flex', marginTop: '1.875rem' },
 });
-
 const Voter = ({ classes, match }) => {
+  const voterAddress = match.params.address.toLowerCase();
   const { loading, error, data } = useQuery(getVoter, {
     client: SUBGRAPH_CLIENTS[match.params.chain],
     variables: {
-      id: match.params.address.toLowerCase(),
+      id: voterAddress,
       addressUniswap: UNI_MCB_POOL[match.params.chain],
     },
   });
@@ -193,25 +193,38 @@ const Voter = ({ classes, match }) => {
     );
   if (error)
     return <div className={classes.root}>`Error! ${error.message}`</div>;
+  debug('data', data);
+  debug('match.params', match.params);
   return (
     <Web3Consumer>
       {(web3Context) => {
-        const mcbBalance = data.account.balances.find(
-          (balance) => balance.contract.id === MCB_ADDRESS[match.params.chain],
-        );
-        debug('mcbBalance', mcbBalance);
-        const uniBalance = data.account.balances.find(
-          (balance) => balance.contract.id === UNI_MCB_POOL[match.params.chain],
-        );
-        debug('uniBalance', uniBalance);
-        debug('data.uniMCBAccount', data.uniMCBAccount);
-        const uniSharesBalance = parseFloat(uniBalance.balance);
-        const uniSharesSupply = parseFloat(uniBalance.totalSupply);
-        const mcbUniSupply = parseFloat(
-          data.uniMCBAccount.balancesLatest[0].balance,
-        );
-        const uniSharesPct = uniSharesBalance / uniSharesSupply;
-        const uniMCBBalance = uniSharesPct * mcbUniSupply;
+        let mcbBalance = 0;
+        let uniMCBBalance = 0;
+
+        if (data?.account?.balances) {
+          const mcbBalanceObj = data.account.balances.find(
+            (balance) =>
+              balance.contract.id === MCB_ADDRESS[match.params.chain],
+          );
+          mcbBalance = mcbBalanceObj.balance;
+          debug('mcbBalance', mcbBalance);
+          const uniBalanceObj = data.account.balances.find(
+            (balance) =>
+              balance.contract.id === UNI_MCB_POOL[match.params.chain],
+          );
+          debug('uniBalanceObj', uniBalanceObj);
+          debug('data.uniMCBAccount', data.uniMCBAccount);
+
+          if (uniBalanceObj) {
+            const uniSharesBalance = parseFloat(uniBalanceObj.balance);
+            const uniSharesSupply = parseFloat(uniBalanceObj.totalSupply);
+            const mcbUniSupply = parseFloat(
+              data.uniMCBAccount.balancesLatest[0].balance,
+            );
+            const uniSharesPct = uniSharesBalance / uniSharesSupply;
+            uniMCBBalance = uniSharesPct * mcbUniSupply;
+          }
+        }
 
         return (
           <div className={classes.root}>
@@ -227,11 +240,12 @@ const Voter = ({ classes, match }) => {
                   </Link>
                 </div>
                 <div className={classes.headerTitle}>
-                  <Identicon size="48" value={data.account.id} />
+                  <Identicon size="48" value={voterAddress} />
+
                   <div className={classes.voterRight}>
                     <div className={classes.voterID}>
-                      {data.account.id === web3Context.address ? 'Me' : 'Voter'}{' '}
-                      {formatAddress(data.account.id)}
+                      {voterAddress === web3Context.address ? 'Me' : 'Voter'}{' '}
+                      {formatAddress(voterAddress)}
                     </div>
                     <div
                       className={classNames(
@@ -239,10 +253,10 @@ const Voter = ({ classes, match }) => {
                         'hint--bounce',
                         classes.voterAddress,
                       )}
-                      onClick={(e) => copy(data.account.id)}
+                      onClick={(e) => copy(voterAddress)}
                       data-hint="Copy address"
                     >
-                      {data.account.id} <FaRegClone />
+                      {voterAddress} <FaRegClone />
                     </div>
                   </div>
                 </div>
@@ -264,9 +278,7 @@ const Voter = ({ classes, match }) => {
                           MCB Total Balance
                         </div>
                         <div className={classes.holdingsItemBalance}>
-                          {formatMCB(
-                            parseFloat(mcbBalance.balance) + uniMCBBalance,
-                          )}
+                          {formatMCB(parseFloat(mcbBalance) + uniMCBBalance)}
                         </div>
                       </ListItem>
                       <Divider />
@@ -276,7 +288,7 @@ const Voter = ({ classes, match }) => {
                           MCB Balance
                         </div>
                         <div className={classes.holdingsItemBalance}>
-                          {formatMCB(parseFloat(mcbBalance.balance))}
+                          {formatMCB(parseFloat(mcbBalance))}
                         </div>
                       </ListItem>
                       <Divider />
@@ -302,66 +314,67 @@ const Voter = ({ classes, match }) => {
                       <ListItem className={classes.listHeader}>
                         Voting History
                       </ListItem>
-                      {data.account.votes.map((vote) => {
-                        const votingStatus = calcSimpleVotingStatus({
-                          blockNumber: web3Context.blockNumber,
-                          proposal: vote.proposal,
-                        });
-                        return (
-                          <Link
-                            to={{
-                              pathname: `../../${match.params.chain}/proposal/${vote.proposal.id}`,
-                              state: { endBlock: vote.proposal.endBlock },
-                            }}
-                            key={vote.id}
-                          >
-                            <Divider />
-                            <ListItem button className={classes.listItem}>
-                              <div className={classes.listItemLeft}>
-                                <div className={classes.proposalTitle}>
-                                  {linkToTitle(vote.proposal.link)}
-                                </div>
-                                <div className={classes.proposalSubTitle}>
-                                  <div
-                                    className={classNames(
-                                      classes.status,
-                                      votingStatus === 'Active' &&
-                                        classes.statusActive,
-                                      votingStatus === 'Ended' &&
-                                        classes.statusEnded,
-                                    )}
-                                  >
-                                    {votingStatus}
+                      {data?.account?.votes &&
+                        data.account.votes.map((vote) => {
+                          const votingStatus = calcSimpleVotingStatus({
+                            blockNumber: web3Context.blockNumber,
+                            proposal: vote.proposal,
+                          });
+                          return (
+                            <Link
+                              to={{
+                                pathname: `../../${match.params.chain}/proposal/${vote.proposal.id}`,
+                                state: { endBlock: vote.proposal.endBlock },
+                              }}
+                              key={vote.id}
+                            >
+                              <Divider />
+                              <ListItem button className={classes.listItem}>
+                                <div className={classes.listItemLeft}>
+                                  <div className={classes.proposalTitle}>
+                                    {linkToTitle(vote.proposal.link)}
                                   </div>
-                                  <div className={classes.proposalID}>
-                                    0{vote.proposal.id} • {votingStatus} on
-                                    Block #
-                                    {votingStatus === 'Ended'
-                                      ? vote.proposal.endBlock
-                                      : vote.proposal.beginBlock}
+                                  <div className={classes.proposalSubTitle}>
+                                    <div
+                                      className={classNames(
+                                        classes.status,
+                                        votingStatus === 'Active' &&
+                                          classes.statusActive,
+                                        votingStatus === 'Ended' &&
+                                          classes.statusEnded,
+                                      )}
+                                    >
+                                      {votingStatus}
+                                    </div>
+                                    <div className={classes.proposalID}>
+                                      0{vote.proposal.id} • {votingStatus} on
+                                      Block #
+                                      {votingStatus === 'Ended'
+                                        ? vote.proposal.endBlock
+                                        : vote.proposal.beginBlock}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div className={classes.listItemRight}>
-                                {vote.content === 'FOR' ? (
-                                  <FaCheckCircle
-                                    size={25}
-                                    color="rgb(89, 239, 236)"
-                                    className={classes.voteIcon}
-                                  />
-                                ) : (
-                                  <FaTimesCircle
-                                    size={25}
-                                    color="rgb(217, 128, 65)"
-                                    className={classes.voteIcon}
-                                  />
-                                )}
-                                {vote.content}
-                              </div>
-                            </ListItem>
-                          </Link>
-                        );
-                      })}
+                                <div className={classes.listItemRight}>
+                                  {vote.content === 'FOR' ? (
+                                    <FaCheckCircle
+                                      size={25}
+                                      color="rgb(89, 239, 236)"
+                                      className={classes.voteIcon}
+                                    />
+                                  ) : (
+                                    <FaTimesCircle
+                                      size={25}
+                                      color="rgb(217, 128, 65)"
+                                      className={classes.voteIcon}
+                                    />
+                                  )}
+                                  {vote.content}
+                                </div>
+                              </ListItem>
+                            </Link>
+                          );
+                        })}
                     </List>
                   </Paper>
                 </div>

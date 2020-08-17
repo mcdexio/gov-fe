@@ -84,10 +84,9 @@ class Web3ContextProvider extends Component {
     debug('ethersProvider', ethersProvider);
     ethersSigner = ethersProvider.getSigner();
 
-    const [accounts, network, blockNumber] = await Promise.all([
+    const [accounts, network] = await Promise.all([
       ethersProvider.listAccounts(),
       ethersProvider.getNetwork(),
-      ethersProvider.getBlockNumber(),
     ]);
     debug('accounts', accounts);
     debug('network', network);
@@ -99,7 +98,6 @@ class Web3ContextProvider extends Component {
         isConnecting: false,
         chainID: network.chainId,
         chainName: network.name,
-        blockNumber: blockNumber,
       };
     });
 

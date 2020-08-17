@@ -151,6 +151,7 @@ export const getVoter = gql`
           id
           link
           endBlock
+          beginBlock
         }
         content
       }

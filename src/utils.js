@@ -74,11 +74,11 @@ export const VOTING_BOX = {
   kovan: '0x66B16B80f09cb80a476f74dEF7315B39Ad53eF8F',
 };
 
+export const isValidLink = (link) =>
+  link.includes('https://forum.mcdex.io/t/') && link.split('/').length === 6;
+
 export const linkToTitle = (link) => {
-  if (
-    link.includes('https://forum.mcdex.io/t/') &&
-    link.split('/').length === 6
-  ) {
+  if (isValidLink(link)) {
     return link
       .split('/')[4]
       .split('-')

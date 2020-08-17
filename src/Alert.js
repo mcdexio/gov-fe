@@ -47,7 +47,10 @@ const AlertComponent = ({ classes, match }) => {
         const alerts = [];
         debug('SUPPORTED_CHAINS', SUPPORTED_CHAINS);
         debug('web3Context.chainName', web3Context.chainName);
-        if (!''.concat(SUPPORTED_CHAINS).includes(web3Context.chainName)) {
+        if (
+          web3Context.chainName &&
+          !SUPPORTED_CHAINS.includes(web3Context.chainName)
+        ) {
           const alertMessage = (
             <div>
               The chain{' '}

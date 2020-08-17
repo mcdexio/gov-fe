@@ -56,6 +56,8 @@ class Web3ContextProvider extends Component {
       chainName: '',
       address: '',
       blockNumber: '',
+      txs: [],
+      receipts: [],
     };
   }
 
@@ -205,16 +207,29 @@ class Web3ContextProvider extends Component {
         newProposalStartBlock,
         newProposalEndBlock,
       );
+
+      this.setState(() => {
+        return {
+          txs: [...this.state.txs, tx],
+        };
+      });
+
       debug('propose tx', tx);
       const receipt = await tx.wait();
       debug('receipt', receipt);
+
+      this.setState(() => {
+        return {
+          txs: [...this.state.receipts, receipt],
+        };
+      });
       refetch();
     } catch (error) {
       debug('propose() error', error);
     }
   };
 
-  vote = async (proposalID, voterSide, refetch) => {
+  vote = async (proposalID, voterSide, refetch, setVoting) => {
     try {
       debug('vote', this.state.chainID.toString());
       const voteBoxContract = new ethers.Contract(
@@ -227,10 +242,21 @@ class Web3ContextProvider extends Component {
         VOTER_SIDE_ENUM[voterSide],
       );
       debug('vote tx', tx);
+      this.setState(() => {
+        return {
+          txs: [...this.state.txs, tx],
+        };
+      });
       const receipt = await tx.wait();
       debug('receipt', receipt);
+      this.setState(() => {
+        return {
+          txs: [...this.state.receipts, receipt],
+        };
+      });
       refetch();
     } catch (error) {
+      setVoting('');
       debug('vote() error', error);
     }
   };
@@ -245,6 +271,8 @@ class Web3ContextProvider extends Component {
           isConnected: this.state.isConnected,
           isConnecting: this.state.isConnecting,
           blockNumber: this.state.blockNumber,
+          txs: this.state.txs,
+          receipts: this.state.receipts,
           connect: this.connect,
           disconnect: this.disconnect,
           propose: this.propose,

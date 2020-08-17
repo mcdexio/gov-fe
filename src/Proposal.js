@@ -8,6 +8,8 @@ import Paper from '@material-ui/core/Paper';
 import { Link } from 'react-router-dom';
 import { MdKeyboardBackspace } from 'react-icons/md';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaCheckCircle } from 'react-icons/fa';
+import { FaTimesCircle } from 'react-icons/fa';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Divider from '@material-ui/core/Divider';
@@ -217,11 +219,15 @@ const styles = (theme) => ({
       border: '1px solid rgba(0, 0, 0, 0.4)',
     },
   },
+  voteIcon: {
+    margin: '5px',
+  },
 });
 
 const Proposal = ({ classes, match, location }) => {
   debug('match', match);
   debug('location', location);
+  const [voting, setVoting] = React.useState('');
 
   const { data: { proposal: { endBlock } = {} } = {} } = useQuery(
     getProposalByID,
@@ -260,6 +266,9 @@ const Proposal = ({ classes, match, location }) => {
     <Web3Consumer>
       {(web3Context) => {
         debug('data.proposal.votes', data.proposal.votes);
+        debug('web3Context.txs.length', web3Context.txs.length);
+        debug('web3Context.receipts.length', web3Context.receipts.length);
+
         const {
           noVoters,
           noVotersMCB,
@@ -286,6 +295,10 @@ const Proposal = ({ classes, match, location }) => {
           yesVotes,
           noVotes,
         });
+        const alreadyVoted = data.proposal.votes.find(
+          (vote) => vote.voter.id === web3Context.address,
+        );
+        debug('alreadyVoted', alreadyVoted);
 
         return (
           <div className={classes.root}>
@@ -441,7 +454,7 @@ const Proposal = ({ classes, match, location }) => {
                           })}
                       </List>
                     </div>
-                    {votingStatus === 'Active' && (
+                    {votingStatus === 'Active' && !alreadyVoted && (
                       <div className={classes.flexCenter}>
                         <Button
                           variant="outlined"
@@ -457,17 +470,32 @@ const Proposal = ({ classes, match, location }) => {
                             root: classes.yesButton,
                           }}
                           onClick={() => {
-                            if (web3Context.isConnected) {
+                            if (web3Context.isConnected && !voting) {
+                              setVoting('FOR');
                               web3Context.vote(
                                 data.proposal.id,
                                 'FOR',
                                 refetch,
+                                setVoting,
                               );
                             }
                           }}
                         >
-                          {`Vote FOR the proposal`}
+                          {voting
+                            ? `Voting ${voting}...`
+                            : `Vote FOR the proposal`}
                         </Button>
+                      </div>
+                    )}
+                    {alreadyVoted?.content === 'FOR' && (
+                      <div className={classes.flexCenter}>
+                        You voted{' '}
+                        <FaCheckCircle
+                          size={25}
+                          color="rgb(89, 239, 236)"
+                          className={classes.voteIcon}
+                        />
+                        FOR
                       </div>
                     )}
                   </Paper>
@@ -547,7 +575,7 @@ const Proposal = ({ classes, match, location }) => {
                           })}
                       </List>
                     </div>
-                    {votingStatus === 'Active' && (
+                    {votingStatus === 'Active' && !alreadyVoted && (
                       <div className={classes.flexCenter}>
                         <Button
                           variant="outlined"
@@ -563,17 +591,32 @@ const Proposal = ({ classes, match, location }) => {
                           }}
                           data-hint="Please connect your Wallet first"
                           onClick={() => {
-                            if (web3Context.isConnected) {
+                            if (web3Context.isConnected && !voting) {
+                              setVoting('AGAINST');
                               web3Context.vote(
                                 data.proposal.id,
                                 'AGAINST',
                                 refetch,
+                                setVoting,
                               );
                             }
                           }}
                         >
-                          {`Vote AGAINST the proposal`}
+                          {voting
+                            ? `Voting ${voting}...`
+                            : `Vote AGAINST the proposal`}
                         </Button>
+                      </div>
+                    )}
+                    {alreadyVoted?.content === 'AGAINST' && (
+                      <div className={classes.flexCenter}>
+                        You voted{' '}
+                        <FaTimesCircle
+                          size={25}
+                          color="rgb(217, 128, 65)"
+                          className={classes.voteIcon}
+                        />
+                        AGAINST
                       </div>
                     )}
                   </Paper>

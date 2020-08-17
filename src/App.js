@@ -2,6 +2,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Route } from 'react-router-dom';
 
+import Alert from './Alert';
 import Header from './Header';
 import Proposals from './Proposals';
 import Proposal from './Proposal';
@@ -15,8 +16,8 @@ const appStyles = (theme) => ({
     display: 'grid',
     padding: '0',
     gridGap: '0',
-    gridTemplateRows: '5.5em 1fr auto',
-    gridTemplateAreas: `'header' 'maingrid' 'footer'`,
+    gridTemplateRows: 'auto 5.5em 1fr auto',
+    gridTemplateAreas: `'alert' 'header' 'maingrid' 'footer'`,
   },
 });
 
@@ -24,6 +25,7 @@ const App = withStyles(appStyles)(({ classes, match }) => {
   return (
     <div className={classes.appGrid}>
       <Web3Provider>
+        <Alert />
         <Header />
         <Route exact path={`${match.path}`} component={Proposals} />
         <Route path={`${match.path}/proposal/:id`} component={Proposal} />

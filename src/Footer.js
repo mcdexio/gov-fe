@@ -228,7 +228,7 @@ const Footer = ({ classes, match }) => {
                   aria-label="open in Etherscan"
                   target="_blank"
                   rel="noreferrer noopener"
-                  href={`${BLOCHAIN_EXPLORER_BASE_URL['mainnet']}/address/0x4e352cf164e64adcbad318c3a1e222e9eba4ce42`}
+                  href={`${BLOCHAIN_EXPLORER_BASE_URL['homestead']}/address/0x4e352cf164e64adcbad318c3a1e222e9eba4ce42`}
                 >
                   <FaExternalLinkAlt />
                 </a>

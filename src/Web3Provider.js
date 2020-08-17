@@ -6,7 +6,7 @@ import ethers from 'ethers';
 import { withRouter, useHistory } from 'react-router-dom';
 
 import { abi as VoteBoxABI } from './abi/VoteBox.json';
-import { VOTING_BOX } from './utils';
+import { VOTING_BOX, SUPPORTED_CHAINS } from './utils';
 
 const debug = Debug('Web3Provider');
 const { Provider, Consumer } = React.createContext();
@@ -102,8 +102,14 @@ class Web3ContextProvider extends Component {
         blockNumber: blockNumber,
       };
     });
-    if (this.props.match.params.chain !== network.name)
+
+    if (
+      this.props.match.params.chain !== network.name &&
+      SUPPORTED_CHAINS.includes(network.name)
+    ) {
+      debug('redirect to ', network.name);
       this.props.history.push(`/${network.name}`);
+    }
 
     debug('connected, ethersProvider:', ethersProvider);
 
@@ -128,15 +134,19 @@ class Web3ContextProvider extends Component {
         };
       });
 
-      if (this.props.match.params.chain !== network.name)
+      if (
+        this.props.match.params.chain !== network.name &&
+        SUPPORTED_CHAINS.includes(network.name)
+      ) {
+        debug('redirect to ', network.name);
         this.props.history.push(`/${network.name}`);
+      }
     });
   };
 
   async componentDidMount() {
-    debug('web3Modal.cachedProvider', web3Modal.cachedProvider);
     if (web3Modal.cachedProvider) {
-      debug('calling web3Modal.connect()', web3Modal.connect);
+      debug('auto calling web3Modal.connect()');
       this.connect();
     }
 

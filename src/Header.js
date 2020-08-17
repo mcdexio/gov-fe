@@ -21,9 +21,11 @@ const styles = (theme) => ({
     flexBasis: '50%',
     maxWidth: '50%',
     textAlign: 'center',
-    color: 'white',
-    fontSize: '1.2rem',
-    fontWeight: 'bolder',
+    '& a': {
+      color: 'white',
+      fontSize: '1.2rem',
+      fontWeight: 'bolder',
+    },
   },
   web3: {
     flexBasis: '25%',
@@ -40,7 +42,9 @@ const Header = ({ classes, match }) => (
       </Link>
     </div>
 
-    <div className={classes.title}>Governance Voting App</div>
+    <div className={classes.title}>
+      <Link to={`../../${match.params.chain}`}>Governance Voting App</Link>
+    </div>
     <div className={classes.web3}>
       <Web3Modal />
     </div>

@@ -15,10 +15,17 @@ import Divider from '@material-ui/core/Divider';
 import { FaPlus } from 'react-icons/fa';
 import classNames from 'classnames';
 import { BarLoader } from 'react-spinners';
+import cap from 'capitalize';
 
 import { getProposals } from './gql';
 import { Web3Consumer } from './Web3Provider';
-import { SUBGRAPH_CLIENTS, linkToTitle, calcSimpleVotingStatus } from './utils';
+import {
+  SUBGRAPH_CLIENTS,
+  linkToTitle,
+  calcSimpleVotingStatus,
+  SUPPORTED_CHAINS,
+  isValidLink,
+} from './utils';
 
 const debug = Debug('Proposals');
 const styles = (theme) => ({
@@ -158,9 +165,13 @@ const styles = (theme) => ({
 
 const Proposals = ({ classes, match }) => {
   const [open, setOpen] = React.useState(false);
+  const [proposing, setProposing] = React.useState(false);
   const [newProposalLink, setNewProposalLink] = React.useState('');
   const [newProposalStartBlock, setNewProposalStartBlock] = React.useState('');
   const [newProposalEndBlock, setNewProposalEndBlock] = React.useState('');
+  const [hasLinkError, setLinkError] = React.useState(false);
+  const [hasStartBlockError, setStartBlockError] = React.useState(false);
+  const [hasEndBlockError, setEndBlockError] = React.useState(false);
 
   const { loading, error, data, refetch } = useQuery(getProposals, {
     client: SUBGRAPH_CLIENTS[match.params.chain],
@@ -180,6 +191,23 @@ const Proposals = ({ classes, match }) => {
     <Web3Consumer>
       {(web3Context) => {
         const proposals = data.proposals.slice();
+        let hintMessage;
+        if (!web3Context.isConnected) {
+          hintMessage = 'Please connect your Wallet first';
+        } else if (
+          web3Context.chainName &&
+          !SUPPORTED_CHAINS.includes(web3Context.chainName)
+        ) {
+          hintMessage = `${cap(
+            web3Context.chainName,
+          )} is NOT supported. Switch to ${SUPPORTED_CHAINS.map((e) =>
+            cap(e),
+          ).join(' or ')}`;
+        } else {
+          hintMessage = 'Submit a new proposal';
+        }
+        const noErrors =
+          !hasLinkError && !hasStartBlockError && !hasEndBlockError;
 
         return (
           <div className={classes.root}>
@@ -205,18 +233,21 @@ const Proposals = ({ classes, match }) => {
                           'hint--left',
                           'hint--bounce',
                           classes.newProposalButton,
-                          !web3Context.address && classes.buttonDisabled,
+                          (!web3Context.address ||
+                            !SUPPORTED_CHAINS.includes(
+                              web3Context.chainName,
+                            )) &&
+                            classes.buttonDisabled,
                         )}
                         onClick={() => {
-                          if (web3Context.address) {
+                          if (
+                            web3Context.address &&
+                            SUPPORTED_CHAINS.includes(web3Context.chainName)
+                          ) {
                             setOpen(true);
                           }
                         }}
-                        data-hint={
-                          web3Context.address
-                            ? 'Submit a new proposal'
-                            : 'Please connect your Wallet first'
-                        }
+                        data-hint={hintMessage}
                       >
                         <FaPlus size={15} />
                       </Button>
@@ -290,8 +321,13 @@ const Proposals = ({ classes, match }) => {
                       label="Forum Link"
                       className={classes.forumLinkInput}
                       value={newProposalLink}
-                      onChange={(event) =>
-                        setNewProposalLink(event.target.value)
+                      onChange={(event) => {
+                        setLinkError(!isValidLink(event.target.value));
+                        setNewProposalLink(event.target.value);
+                      }}
+                      error={hasLinkError}
+                      helperText={
+                        hasLinkError ? 'Invalid MCDEX forum Link' : ''
                       }
                     />
                     <div className={classes.blockInputs}>
@@ -301,8 +337,20 @@ const Proposals = ({ classes, match }) => {
                         type="number"
                         className={classes.startBlockInput}
                         value={newProposalStartBlock}
-                        onChange={(event) =>
-                          setNewProposalStartBlock(event.target.value)
+                        onChange={(event) => {
+                          debug(
+                            'typeof event.target.value',
+                            typeof event.target.value,
+                          );
+                          setStartBlockError(
+                            parseInt(event.target.value) <=
+                              web3Context.blockNumber,
+                          );
+                          setNewProposalStartBlock(event.target.value);
+                        }}
+                        error={hasStartBlockError}
+                        helperText={
+                          hasStartBlockError ? 'Too old block number' : ''
                         }
                       />
                       <TextField
@@ -311,8 +359,21 @@ const Proposals = ({ classes, match }) => {
                         type="number"
                         className={classes.endBlockInput}
                         value={newProposalEndBlock}
-                        onChange={(event) =>
-                          setNewProposalEndBlock(event.target.value)
+                        onChange={(event) => {
+                          debug('event.target.value ', event.target.value);
+                          debug(
+                            'newProposalStartBlock + 5760',
+                            newProposalStartBlock + 5760,
+                          );
+                          setEndBlockError(
+                            event.target.value <=
+                              parseInt(newProposalStartBlock) + 5760,
+                          );
+                          setNewProposalEndBlock(event.target.value);
+                        }}
+                        error={hasEndBlockError}
+                        helperText={
+                          hasEndBlockError ? 'Too small block number' : ''
                         }
                       />
                     </div>
@@ -321,17 +382,25 @@ const Proposals = ({ classes, match }) => {
                     <Button
                       variant="contained"
                       color="secondary"
-                      className={classes.button}
-                      onClick={() =>
-                        web3Context.propose(
-                          newProposalLink,
-                          newProposalStartBlock,
-                          newProposalEndBlock,
-                          refetch,
-                        )
-                      }
+                      className={classNames(
+                        classes.button,
+                        (!noErrors || proposing) && classes.buttonDisabled,
+                      )}
+                      onClick={() => {
+                        if (noErrors && !proposing) {
+                          setProposing(true);
+                          web3Context.propose(
+                            newProposalLink,
+                            newProposalStartBlock,
+                            newProposalEndBlock,
+                            refetch,
+                            setOpen,
+                            setProposing,
+                          );
+                        }
+                      }}
                     >
-                      {`Submit the new proposal`}
+                      {proposing ? `Submitting...` : `Submit the new proposal`}
                     </Button>
                   </div>
                 </div>

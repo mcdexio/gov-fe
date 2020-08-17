@@ -124,7 +124,7 @@ class Web3ContextProvider extends Component {
       });
     });
 
-    ethersProvider.on('network', (network, oldNetwork) => {
+    ethersProvider.on('network', async (network, oldNetwork) => {
       debug('ethersProvider.network network', network);
       debug('ethersProvider.network oldNetwork', oldNetwork);
       this.setState(() => {
@@ -140,6 +140,18 @@ class Web3ContextProvider extends Component {
       ) {
         debug('redirect to ', network.name);
         this.props.history.push(`/${network.name}`);
+
+        const blockNumber = await defaultEthersProvider[
+          this.props.match.params.chain
+        ].getBlockNumber();
+        debug('blockNumber', blockNumber);
+        debug('this.props.match', this.props.match);
+        debug('this.state', this.state);
+        this.setState(() => {
+          return {
+            blockNumber: blockNumber,
+          };
+        });
       }
     });
   };
@@ -186,6 +198,8 @@ class Web3ContextProvider extends Component {
     newProposalStartBlock,
     newProposalEndBlock,
     refetch,
+    setOpen,
+    setProposing,
   ) => {
     try {
       debug('newProposalLink', newProposalLink);
@@ -223,8 +237,11 @@ class Web3ContextProvider extends Component {
           txs: [...this.state.receipts, receipt],
         };
       });
+      setOpen(false);
+      setProposing(false);
       refetch();
     } catch (error) {
+      setProposing(false);
       debug('propose() error', error);
     }
   };

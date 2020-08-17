@@ -314,7 +314,7 @@ const Proposal = ({ classes, match, location }) => {
                       data-hint="Click to read the proposal"
                     >
                       {linkToTitle(data.proposal.link)}{' '}
-                      <FaExternalLinkAlt size={'1.5rem'} />
+                      <FaExternalLinkAlt size={17} />
                     </a>
                     <div className={classes.proposalSubTitle}>
                       <div

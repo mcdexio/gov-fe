@@ -52,26 +52,11 @@ class Web3ContextProvider extends Component {
     this.state = {
       isConnected: false,
       isConnecting: false,
-      defaultChainId: '',
       chainID: '',
       chainName: '',
       address: '',
       blockNumber: '',
     };
-  }
-
-  async componentDidMount() {
-    const blockNumber = await defaultEthersProvider[
-      this.props.match.params.chain
-    ].getBlockNumber();
-    debug('blockNumber', blockNumber);
-    debug('this.props.match', this.props.match);
-    debug('this.state', this.state);
-    this.setState(() => {
-      return {
-        blockNumber: blockNumber,
-      };
-    });
   }
 
   connect = async () => {
@@ -147,6 +132,26 @@ class Web3ContextProvider extends Component {
         this.props.history.push(`/${network.name}`);
     });
   };
+
+  async componentDidMount() {
+    debug('web3Modal.cachedProvider', web3Modal.cachedProvider);
+    if (web3Modal.cachedProvider) {
+      debug('calling web3Modal.connect()', web3Modal.connect);
+      this.connect();
+    }
+
+    const blockNumber = await defaultEthersProvider[
+      this.props.match.params.chain
+    ].getBlockNumber();
+    debug('blockNumber', blockNumber);
+    debug('this.props.match', this.props.match);
+    debug('this.state', this.state);
+    this.setState(() => {
+      return {
+        blockNumber: blockNumber,
+      };
+    });
+  }
 
   disconnect = async () => {
     debug('disconnect ethersProvider:', ethersProvider);

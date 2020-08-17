@@ -29,6 +29,9 @@ const theme = createMuiTheme({
     subtitle1: {
       fontFamily: 'Montserrat-Regular, sans-serif',
     },
+    button: {
+      textTransform: 'none',
+    },
   },
   palette: {
     primary: {

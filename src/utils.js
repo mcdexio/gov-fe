@@ -46,19 +46,19 @@ export const BLOCHAIN_EXPLORER_BASE_URL = {
   goerli: 'https://goerli.etherscan.io',
 };
 
-const GQL_BASE_URL = 'https://api.thegraph.com/subgraphs/name/sulliwane';
-
 export const SUBGRAPH_CLIENTS = {
   mainnet: new ApolloClient({
-    uri: `${GQL_BASE_URL}/mcdex-mainnet-subgraph`,
+    uri: 'https://api.thegraph.com/subgraphs/name/mcdexio/mcdex-vote-mainnet',
     cache: new InMemoryCache(),
   }),
   ropsten: new ApolloClient({
-    uri: `${GQL_BASE_URL}/mcdex-ropsten-subgraph`,
+    uri:
+      'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-ropsten-subgraph',
     cache: new InMemoryCache(),
   }),
   kovan: new ApolloClient({
-    uri: `${GQL_BASE_URL}/mcdex-kovan-subgraph`,
+    uri:
+      'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-kovan-subgraph',
     cache: new InMemoryCache(),
   }),
 };

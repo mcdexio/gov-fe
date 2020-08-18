@@ -12,6 +12,7 @@ import { FaReddit } from 'react-icons/fa';
 import { withRouter } from 'react-router-dom';
 import classNames from 'classnames';
 import { useHistory } from 'react-router-dom';
+import copy from 'copy-to-clipboard';
 
 import {
   Logo,
@@ -98,6 +99,9 @@ const styles = (theme) => ({
     justifyContent: 'center',
     display: 'flex',
     alignItems: 'center',
+  },
+  voterAddress: {
+    cursor: 'copy',
   },
   right: { flexBasis: '25%', maxWidth: '25%', textAlign: 'right' },
   logoSmall: { marginRight: 5 },
@@ -221,8 +225,18 @@ const Footer = ({ classes, match }) => {
             <div className={classes.row2}>
               <div className={classes.left}></div>
               <div className={classes.middle}>
-                <LogoSmall width={28} className={classes.logoSmall} /> MCB Token
-                Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
+                <LogoSmall width={28} className={classes.logoSmall} />
+                <div
+                  className={classNames(
+                    'hint--top',
+                    'hint--bounce',
+                    classes.voterAddress,
+                  )}
+                  onClick={(e) => copy(voterAddress)}
+                  data-hint="Copy address"
+                >
+                  MCB Token Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
+                </div>
                 <a
                   className={classNames('hint--right', classes.externalLink)}
                   aria-label="open in Etherscan"

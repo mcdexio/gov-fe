@@ -37,7 +37,7 @@ export const LogoSmall = ({ width, className }) => (
   />
 );
 
-export const SUPPORTED_CHAINS = ['ropsten', 'kovan'];
+export const SUPPORTED_CHAINS = ['mainnet', 'ropsten', 'kovan'];
 
 export const BLOCHAIN_EXPLORER_BASE_URL = {
   homestead: 'https://etherscan.io',
@@ -49,6 +49,10 @@ export const BLOCHAIN_EXPLORER_BASE_URL = {
 const GQL_BASE_URL = 'https://api.thegraph.com/subgraphs/name/sulliwane';
 
 export const SUBGRAPH_CLIENTS = {
+  mainnet: new ApolloClient({
+    uri: `${GQL_BASE_URL}/mcdex-mainnet-subgraph`,
+    cache: new InMemoryCache(),
+  }),
   ropsten: new ApolloClient({
     uri: `${GQL_BASE_URL}/mcdex-ropsten-subgraph`,
     cache: new InMemoryCache(),
@@ -60,16 +64,19 @@ export const SUBGRAPH_CLIENTS = {
 };
 
 export const MCB_ADDRESS = {
+  mainnet: '0x4e352cf164e64adcbad318c3a1e222e9eba4ce42',
   ropsten: '0x03fd756680df74b794134fe174f03e8bb1229936',
   kovan: '0xcb263ab066d982b285d20cec20153d1923e6969d',
 };
 
 export const UNI_MCB_POOL = {
+  mainnet: '0x10cfa744c77f1cb9a77fa418ac4a1b6ec62bcce4',
   ropsten: '0x9e99f7d76563a9b087f159d2599478826d9f729d',
   kovan: '0x4fb542b239cddca757828ddee53487739f1bcdef',
 };
 
 export const VOTING_BOX = {
+  mainnet: '0xb44a29b5fb1f6dc5730d721a2c12898e1e6c6c31',
   ropsten: '0x79a367A7045d359765f9CdE9424304c85b9F7A25',
   kovan: '0x66B16B80f09cb80a476f74dEF7315B39Ad53eF8F',
 };

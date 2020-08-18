@@ -201,20 +201,20 @@ const Voter = ({ classes, match }) => {
         let mcbBalance = 0;
         let uniMCBBalance = 0;
 
-        if (data?.account?.balances) {
+        if (data?.account?.balances?.length > 0) {
           const mcbBalanceObj = data.account.balances.find(
             (balance) =>
               balance.contract.id === MCB_ADDRESS[match.params.chain],
           );
-          mcbBalance = mcbBalanceObj.balance;
+          if (mcbBalanceObj) mcbBalance = mcbBalanceObj.balance;
           debug('mcbBalance', mcbBalance);
+
           const uniBalanceObj = data.account.balances.find(
             (balance) =>
               balance.contract.id === UNI_MCB_POOL[match.params.chain],
           );
           debug('uniBalanceObj', uniBalanceObj);
           debug('data.uniMCBAccount', data.uniMCBAccount);
-
           if (uniBalanceObj) {
             const uniSharesBalance = parseFloat(uniBalanceObj.balance);
             const uniSharesSupply = parseFloat(uniBalanceObj.totalSupply);

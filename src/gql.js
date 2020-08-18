@@ -124,7 +124,7 @@ export const getProposal = gql`
 `;
 
 export const getVoter = gql`
-  query getProposal($id: ID!, $addressUniswap: String!) {
+  query getVoter($id: ID!, $addressUniswap: String!) {
     uniMCBAccount: account(id: $addressUniswap) {
       id
       balancesLatest {

@@ -69,6 +69,51 @@ class Web3ContextProvider extends Component {
     };
   }
 
+  redirect = async (chainName) => {
+    try {
+      debug('redirect to ', chainName);
+      this.props.history.push(`/${chainName}`);
+
+      const mcbContract = new ethers.Contract(
+        MCB_ADDRESS[chainName],
+        erc20ABI,
+        defaultEthersProvider[chainName],
+      );
+      const voteBoxContract = new ethers.Contract(
+        VOTING_BOX[chainName],
+        VoteBoxABI,
+        defaultEthersProvider[chainName],
+      );
+
+      const [
+        blockNumber,
+        minProposalMCB,
+        minPeriod,
+        mcbBalance,
+      ] = await Promise.all([
+        defaultEthersProvider[chainName].getBlockNumber(),
+        voteBoxContract.MIN_PROPOSAL_MCB(),
+        voteBoxContract.MIN_PERIOD(),
+        mcbContract.balanceOf(this.state.address),
+      ]);
+      debug('blockNumber', blockNumber);
+      debug('minProposalMCB', minProposalMCB.toString());
+      debug('minPeriod', minPeriod.toString());
+      debug('mcbBalance', mcbBalance.toString());
+      debug('this.props.match', this.props.match);
+      debug('this.state', this.state);
+
+      this.setState(() => ({
+        blockNumber,
+        minProposalMCB,
+        minPeriod,
+        mcbBalance,
+      }));
+    } catch (error) {
+      debug('redirect() error', error);
+    }
+  };
+
   connect = async () => {
     this.setState(() => {
       return {
@@ -133,10 +178,8 @@ class Web3ContextProvider extends Component {
     if (
       this.props.match.params.chain !== chainName &&
       SUPPORTED_CHAINS.includes(chainName)
-    ) {
-      debug('redirect to ', chainName);
-      this.props.history.push(`/${chainName}`);
-    }
+    )
+      this.redirect(chainName);
 
     debug('connected, ethersProvider:', ethersProvider);
 
@@ -177,46 +220,8 @@ class Web3ContextProvider extends Component {
       if (
         this.props.match.params.chain !== chainName &&
         SUPPORTED_CHAINS.includes(chainName)
-      ) {
-        debug('redirect to ', chainName);
-        this.props.history.push(`/${chainName}`);
-
-        const mcbContract = new ethers.Contract(
-          MCB_ADDRESS[chainName],
-          erc20ABI,
-          defaultEthersProvider[chainName],
-        );
-        const voteBoxContract = new ethers.Contract(
-          VOTING_BOX[chainName],
-          VoteBoxABI,
-          defaultEthersProvider[chainName],
-        );
-
-        const [
-          blockNumber,
-          minProposalMCB,
-          minPeriod,
-          mcbBalance,
-        ] = await Promise.all([
-          defaultEthersProvider[chainName].getBlockNumber(),
-          voteBoxContract.MIN_PROPOSAL_MCB(),
-          voteBoxContract.MIN_PERIOD(),
-          mcbContract.balanceOf(this.state.address),
-        ]);
-        debug('blockNumber', blockNumber);
-        debug('minProposalMCB', minProposalMCB.toString());
-        debug('minPeriod', minPeriod.toString());
-        debug('mcbBalance', mcbBalance.toString());
-        debug('this.props.match', this.props.match);
-        debug('this.state', this.state);
-
-        this.setState(() => ({
-          blockNumber,
-          minProposalMCB,
-          minPeriod,
-          mcbBalance,
-        }));
-      }
+      )
+        this.redirect(chainName);
     });
   };
 

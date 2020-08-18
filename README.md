@@ -1,6 +1,11 @@
 # gov-fe
 
-The MCDEX governance system frontend
+The MCDEX Governance voting app UI.
+
+Interfaced with:
+
+- The Governance voting smart contracts ([repo](https://github.com/mcdexio/vote-protocol))
+- The Governance voting backend ([repo](https://github.com/mcdexio/gov-be))
 
 # To Do
 
@@ -10,6 +15,7 @@ The MCDEX governance system frontend
 - [x] Warn if wallet is connected but not on Mainnet
 - [ ] Add responsivness
 - [ ] Add support for Coinbase Wallet (Wallet Link)
+- [ ] Display future timestamp instead of Block number
 
 # Test
 

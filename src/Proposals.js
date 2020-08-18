@@ -283,10 +283,11 @@ const Proposals = ({ classes, match }) => {
                                 {votingStatus}
                               </div>
                               <div className={classes.proposalID}>
-                                0{proposal.id} • {votingStatus} on Block #
-                                {votingStatus === 'Ended'
-                                  ? proposal.endBlock
-                                  : proposal.beginBlock}
+                                0{proposal.id} •{' '}
+                                {votingStatus === 'Active'
+                                  ? 'Will end'
+                                  : votingStatus}{' '}
+                                on Block #{proposal.endBlock}
                               </div>
                             </div>
                           </ListItem>

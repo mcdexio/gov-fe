@@ -38,6 +38,9 @@ const styles = (theme) => ({
   bold: {
     fontWeight: 'bold',
   },
+  margin: {
+    marginRight: '4px',
+  },
 });
 
 const AlertComponent = ({ classes, match }) => {
@@ -86,7 +89,8 @@ const AlertComponent = ({ classes, match }) => {
                     classes={{ icon: classes.icon, message: classes.message }}
                     severity="warning"
                   >
-                    Warning {index + 1}: {alertMessage}
+                    <div className={classes.margin}>Warning {index + 1}:</div>{' '}
+                    {alertMessage}
                   </Alert>
                 </div>
               );

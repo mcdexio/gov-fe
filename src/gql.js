@@ -127,7 +127,16 @@ export const getVoter = gql`
   query getVoter($id: ID!, $addressUniswap: String!) {
     uniMCBAccount: account(id: $addressUniswap) {
       id
-      balancesLatest {
+      balancesHistory(orderBy: block, orderDirection: desc, first: 1) {
+        id
+        balance
+        totalSupply
+        block
+      }
+    }
+    uniContract: contract(id: $addressUniswap) {
+      id
+      balancesHistory(orderBy: block, orderDirection: desc, first: 1) {
         id
         balance
         totalSupply

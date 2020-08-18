@@ -273,16 +273,17 @@ const Proposal = ({ classes, match, location }) => {
           noVoters,
           noVotersMCB,
           noVotersUni,
+          noVotesMCB,
+          noVotesUniMCB,
+          noVotes,
+          noVotesPct,
           yesVoters,
           yesVotersMCB,
           yesVotersUni,
           yesVotesMCB,
           yesVotesUniMCB,
-          noVotesUniMCB,
           yesVotes,
-          noVotes,
           yesVotesPct,
-          noVotesPct,
         } = calcVotingSummary({
           votes: data.proposal.votes,
           uniMCBAccount: data.uniMCBAccount,
@@ -341,8 +342,9 @@ const Proposal = ({ classes, match, location }) => {
                         {votingStatus}
                       </div>
                       <div className={classes.proposalID}>
-                        0{data.proposal.id} • {votingStatus} on Block #
-                        {data.proposal.endBlock}
+                        0{data.proposal.id} •{' '}
+                        {votingStatus === 'Active' ? 'Will end' : votingStatus}{' '}
+                        on Block #{data.proposal.endBlock}
                       </div>
                     </div>
                   </div>
@@ -420,10 +422,27 @@ const Proposal = ({ classes, match, location }) => {
                               vote.voter.votesMCB.length > 0
                                 ? parseFloat(vote.voter.votesMCB[0].balance)
                                 : 0;
-                            const uniBalance =
-                              vote.voter.votesUni.length > 0
-                                ? parseFloat(vote.voter.votesUni[0].balance)
-                                : 0;
+
+                            let uniMCBBalance = 0;
+                            if (vote.voter.votesUni.length > 0) {
+                              const uniSharesBalance =
+                                vote.voter.votesUni.length > 0
+                                  ? parseFloat(vote.voter.votesUni[0].balance)
+                                  : 0;
+                              debug('uniSharesBalance', uniSharesBalance);
+                              const uniSharesSupply = parseFloat(
+                                data.uniContract.balancesHistory[0].totalSupply,
+                              );
+                              debug('uniSharesSupply', uniSharesSupply);
+                              const mcbUniSupply = parseFloat(
+                                data.uniMCBAccount.balancesHistory[0].balance,
+                              );
+                              const uniSharesPct =
+                                uniSharesBalance / uniSharesSupply;
+                              debug('uniSharesPct', uniSharesPct);
+                              uniMCBBalance = uniSharesPct * mcbUniSupply;
+                            }
+
                             return (
                               <Link
                                 to={`../../${match.params.chain}/voter/${vote.voter.id}`}
@@ -443,10 +462,10 @@ const Proposal = ({ classes, match, location }) => {
                                     data-hint={`${formatMCB(
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
-                                      yesVotesUniMCB,
+                                      uniMCBBalance,
                                     )} UNI`}
                                   >
-                                    {formatMCB(mcbBalance + yesVotesUniMCB)} MCB
+                                    {formatMCB(mcbBalance + uniMCBBalance)} MCB
                                   </div>
                                 </ListItem>
                               </Link>
@@ -454,39 +473,6 @@ const Proposal = ({ classes, match, location }) => {
                           })}
                       </List>
                     </div>
-                    {votingStatus === 'Active' && !alreadyVoted && (
-                      <div className={classes.flexCenter}>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          disableElevation={true}
-                          className={classNames(
-                            !web3Context.isConnected && classes.buttonDisabled,
-                            !web3Context.isConnected && 'hint--top',
-                            !web3Context.isConnected && 'hint--bounce',
-                          )}
-                          data-hint="Please connect your Wallet first"
-                          classes={{
-                            root: classes.yesButton,
-                          }}
-                          onClick={() => {
-                            if (web3Context.isConnected && !voting) {
-                              setVoting('FOR');
-                              web3Context.vote(
-                                data.proposal.id,
-                                'FOR',
-                                refetch,
-                                setVoting,
-                              );
-                            }
-                          }}
-                        >
-                          {voting
-                            ? `Voting ${voting}...`
-                            : `Vote FOR the proposal`}
-                        </Button>
-                      </div>
-                    )}
                     {alreadyVoted?.content === 'FOR' && (
                       <div className={classes.flexCenter}>
                         You voted{' '}
@@ -498,12 +484,55 @@ const Proposal = ({ classes, match, location }) => {
                         FOR
                       </div>
                     )}
+                    {votingStatus === 'Active' &&
+                      ['', 'FOR'].includes(voting) &&
+                      alreadyVoted?.content !== 'FOR' && (
+                        <div className={classes.flexCenter}>
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            disableElevation={true}
+                            className={classNames(
+                              !web3Context.isConnected &&
+                                classes.buttonDisabled,
+                              !web3Context.isConnected && 'hint--top',
+                              !web3Context.isConnected && 'hint--bounce',
+                            )}
+                            data-hint="Please connect your Wallet first"
+                            classes={{
+                              root: classes.yesButton,
+                            }}
+                            onClick={() => {
+                              if (web3Context.isConnected && !voting) {
+                                setVoting('FOR');
+                                web3Context.vote(
+                                  data.proposal.id,
+                                  'FOR',
+                                  refetch,
+                                  setVoting,
+                                );
+                              }
+                            }}
+                          >
+                            {voting
+                              ? `Voting ${voting}...`
+                              : `Vote FOR the proposal`}
+                          </Button>
+                        </div>
+                      )}
                   </Paper>
                   <Paper className={classes.resultPaper}>
                     <div>
                       <div className={classes.totalVoteResult}>
                         <div>Against</div>
-                        <div>{formatMCB(noVotes)} MCB</div>
+                        <div
+                          className={classNames('hint--bottom', 'hint--bounce')}
+                          data-hint={`${formatMCB(
+                            noVotesMCB,
+                          )} MCB \u000A${formatMCB(noVotesUniMCB)} UNI`}
+                        >
+                          {formatMCB(noVotes)} MCB
+                        </div>
                       </div>
                       <LinearProgress
                         classes={{
@@ -541,10 +570,27 @@ const Proposal = ({ classes, match, location }) => {
                               vote.voter.votesMCB.length > 0
                                 ? parseFloat(vote.voter.votesMCB[0].balance)
                                 : 0;
-                            const uniBalance =
-                              vote.voter.votesUni.length > 0
-                                ? parseFloat(vote.voter.votesUni[0].balance)
-                                : 0;
+
+                            let uniMCBBalance = 0;
+                            if (vote.voter.votesUni.length > 0) {
+                              const uniSharesBalance =
+                                vote.voter.votesUni.length > 0
+                                  ? parseFloat(vote.voter.votesUni[0].balance)
+                                  : 0;
+                              debug('uniSharesBalance', uniSharesBalance);
+                              const uniSharesSupply = parseFloat(
+                                data.uniContract.balancesHistory[0].totalSupply,
+                              );
+                              debug('uniSharesSupply', uniSharesSupply);
+                              const mcbUniSupply = parseFloat(
+                                data.uniMCBAccount.balancesHistory[0].balance,
+                              );
+                              const uniSharesPct =
+                                uniSharesBalance / uniSharesSupply;
+                              debug('uniSharesPct', uniSharesPct);
+                              uniMCBBalance = uniSharesPct * mcbUniSupply;
+                            }
+
                             return (
                               <Link
                                 to={`../../${match.params.chain}/voter/${vote.voter.id}`}
@@ -564,10 +610,10 @@ const Proposal = ({ classes, match, location }) => {
                                     data-hint={`${formatMCB(
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
-                                      noVotesUniMCB,
+                                      uniMCBBalance,
                                     )} UNI`}
                                   >
-                                    {formatMCB(mcbBalance + noVotesUniMCB)} MCB
+                                    {formatMCB(mcbBalance + uniMCBBalance)} MCB
                                   </div>
                                 </ListItem>
                               </Link>
@@ -575,39 +621,6 @@ const Proposal = ({ classes, match, location }) => {
                           })}
                       </List>
                     </div>
-                    {votingStatus === 'Active' && !alreadyVoted && (
-                      <div className={classes.flexCenter}>
-                        <Button
-                          variant="outlined"
-                          disableElevation={true}
-                          color="primary"
-                          className={classNames(
-                            !web3Context.isConnected && classes.buttonDisabled,
-                            !web3Context.isConnected && 'hint--top',
-                            !web3Context.isConnected && 'hint--bounce',
-                          )}
-                          classes={{
-                            root: classes.noButton,
-                          }}
-                          data-hint="Please connect your Wallet first"
-                          onClick={() => {
-                            if (web3Context.isConnected && !voting) {
-                              setVoting('AGAINST');
-                              web3Context.vote(
-                                data.proposal.id,
-                                'AGAINST',
-                                refetch,
-                                setVoting,
-                              );
-                            }
-                          }}
-                        >
-                          {voting
-                            ? `Voting ${voting}...`
-                            : `Vote AGAINST the proposal`}
-                        </Button>
-                      </div>
-                    )}
                     {alreadyVoted?.content === 'AGAINST' && (
                       <div className={classes.flexCenter}>
                         You voted{' '}
@@ -619,6 +632,42 @@ const Proposal = ({ classes, match, location }) => {
                         AGAINST
                       </div>
                     )}
+                    {votingStatus === 'Active' &&
+                      ['', 'AGAINST'].includes(voting) &&
+                      alreadyVoted?.content !== 'AGAINST' && (
+                        <div className={classes.flexCenter}>
+                          <Button
+                            variant="outlined"
+                            disableElevation={true}
+                            color="primary"
+                            className={classNames(
+                              !web3Context.isConnected &&
+                                classes.buttonDisabled,
+                              !web3Context.isConnected && 'hint--top',
+                              !web3Context.isConnected && 'hint--bounce',
+                            )}
+                            classes={{
+                              root: classes.noButton,
+                            }}
+                            data-hint="Please connect your Wallet first"
+                            onClick={() => {
+                              if (web3Context.isConnected && !voting) {
+                                setVoting('AGAINST');
+                                web3Context.vote(
+                                  data.proposal.id,
+                                  'AGAINST',
+                                  refetch,
+                                  setVoting,
+                                );
+                              }
+                            }}
+                          >
+                            {voting
+                              ? `Voting ${voting}...`
+                              : `Vote AGAINST the proposal`}
+                          </Button>
+                        </div>
+                      )}
                   </Paper>
                 </div>
               </div>

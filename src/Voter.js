@@ -214,12 +214,13 @@ const Voter = ({ classes, match }) => {
               balance.contract.id === UNI_MCB_POOL[match.params.chain],
           );
           debug('uniBalanceObj', uniBalanceObj);
-          debug('data.uniMCBAccount', data.uniMCBAccount);
           if (uniBalanceObj) {
             const uniSharesBalance = parseFloat(uniBalanceObj.balance);
-            const uniSharesSupply = parseFloat(uniBalanceObj.totalSupply);
+            const uniSharesSupply = parseFloat(
+              data.uniContract.balancesHistory[0].totalSupply,
+            );
             const mcbUniSupply = parseFloat(
-              data.uniMCBAccount.balancesLatest[0].balance,
+              data.uniMCBAccount.balancesHistory[0].balance,
             );
             const uniSharesPct = uniSharesBalance / uniSharesSupply;
             uniMCBBalance = uniSharesPct * mcbUniSupply;
@@ -347,11 +348,11 @@ const Voter = ({ classes, match }) => {
                                       {votingStatus}
                                     </div>
                                     <div className={classes.proposalID}>
-                                      0{vote.proposal.id} • {votingStatus} on
-                                      Block #
-                                      {votingStatus === 'Ended'
-                                        ? vote.proposal.endBlock
-                                        : vote.proposal.beginBlock}
+                                      0{vote.proposal.id} •{' '}
+                                      {votingStatus === 'Active'
+                                        ? 'Will end'
+                                        : votingStatus}{' '}
+                                      on Block #{vote.proposal.endBlock}
                                     </div>
                                   </div>
                                 </div>

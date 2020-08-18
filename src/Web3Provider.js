@@ -2,11 +2,12 @@ import Debug from 'debug';
 import React, { Component } from 'react';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import ethers from 'ethers';
+import ethers, { BigNumber as BN } from 'ethers';
 import { withRouter, useHistory } from 'react-router-dom';
 
 import { abi as VoteBoxABI } from './abi/VoteBox.json';
-import { VOTING_BOX, SUPPORTED_CHAINS } from './utils';
+import { abi as erc20ABI } from './abi/ERC20.json';
+import { VOTING_BOX, SUPPORTED_CHAINS, MCB_ADDRESS } from './utils';
 
 const debug = Debug('Web3Provider');
 const { Provider, Consumer } = React.createContext();
@@ -62,6 +63,9 @@ class Web3ContextProvider extends Component {
       blockNumber: '',
       txs: [],
       receipts: [],
+      minProposalMCB: BN.from(1000000).pow(18),
+      minPeriod: BN.from(5760),
+      mcbBalance: BN.from(0),
     };
   }
 
@@ -90,12 +94,27 @@ class Web3ContextProvider extends Component {
     debug('ethersProvider', ethersProvider);
     ethersSigner = ethersProvider.getSigner();
 
-    const [accounts, network] = await Promise.all([
+    let mcbContract = new ethers.Contract(
+      MCB_ADDRESS[this.props.match.params.chain],
+      erc20ABI,
+      defaultEthersProvider[this.props.match.params.chain],
+    );
+    let voteBoxContract = new ethers.Contract(
+      VOTING_BOX[this.props.match.params.chain],
+      VoteBoxABI,
+      defaultEthersProvider[this.props.match.params.chain],
+    );
+
+    const [accounts, network, minProposalMCB, minPeriod] = await Promise.all([
       ethersProvider.listAccounts(),
       ethersProvider.getNetwork(),
+      voteBoxContract.MIN_PROPOSAL_MCB(),
+      voteBoxContract.MIN_PERIOD(),
     ]);
     debug('accounts', accounts);
     debug('network', network);
+    let mcbBalance = await mcbContract.balanceOf(accounts[0]);
+    debug('mcbBalance', mcbBalance.toString());
 
     const chainName = network.name === 'homestead' ? 'mainnet' : network.name;
     this.setState(() => {
@@ -105,6 +124,9 @@ class Web3ContextProvider extends Component {
         isConnecting: false,
         chainID: network.chainId,
         chainName,
+        minProposalMCB,
+        minPeriod,
+        mcbBalance,
       };
     });
 
@@ -118,15 +140,26 @@ class Web3ContextProvider extends Component {
 
     debug('connected, ethersProvider:', ethersProvider);
 
-    web3Provider.on('accountsChanged', (accounts) => {
+    web3Provider.on('accountsChanged', async (accounts) => {
       debug('accountsChanged', accounts);
-      this.setState(() => {
-        return {
-          address:
-            web3Provider.selectedAddress?.toLowerCase() ||
-            web3Provider.accounts[0]?.toLowerCase(),
-        };
-      });
+
+      const mcbContract = new ethers.Contract(
+        MCB_ADDRESS[this.props.match.params.chain],
+        erc20ABI,
+        defaultEthersProvider[this.props.match.params.chain],
+      );
+
+      this.setState(() => ({
+        address:
+          web3Provider.selectedAddress?.toLowerCase() ||
+          web3Provider.accounts[0]?.toLowerCase(),
+      }));
+
+      const mcbBalance = await mcbContract.balanceOf(accounts[0]);
+      debug('mcbBalance', mcbBalance.toString());
+      this.setState(() => ({
+        mcbBalance,
+      }));
     });
 
     ethersProvider.on('network', async (network, oldNetwork) => {
@@ -148,17 +181,41 @@ class Web3ContextProvider extends Component {
         debug('redirect to ', chainName);
         this.props.history.push(`/${chainName}`);
 
-        const blockNumber = await defaultEthersProvider[
-          this.props.match.params.chain
-        ].getBlockNumber();
+        const mcbContract = new ethers.Contract(
+          MCB_ADDRESS[chainName],
+          erc20ABI,
+          defaultEthersProvider[chainName],
+        );
+        const voteBoxContract = new ethers.Contract(
+          VOTING_BOX[chainName],
+          VoteBoxABI,
+          defaultEthersProvider[chainName],
+        );
+
+        const [
+          blockNumber,
+          minProposalMCB,
+          minPeriod,
+          mcbBalance,
+        ] = await Promise.all([
+          defaultEthersProvider[chainName].getBlockNumber(),
+          voteBoxContract.MIN_PROPOSAL_MCB(),
+          voteBoxContract.MIN_PERIOD(),
+          mcbContract.balanceOf(this.state.address),
+        ]);
         debug('blockNumber', blockNumber);
+        debug('minProposalMCB', minProposalMCB.toString());
+        debug('minPeriod', minPeriod.toString());
+        debug('mcbBalance', mcbBalance.toString());
         debug('this.props.match', this.props.match);
         debug('this.state', this.state);
-        this.setState(() => {
-          return {
-            blockNumber: blockNumber,
-          };
-        });
+
+        this.setState(() => ({
+          blockNumber,
+          minProposalMCB,
+          minPeriod,
+          mcbBalance,
+        }));
       }
     });
   };
@@ -169,15 +226,15 @@ class Web3ContextProvider extends Component {
       this.connect();
     }
 
-    const blockNumber = await defaultEthersProvider[
-      this.props.match.params.chain
-    ].getBlockNumber();
+    const [blockNumber] = await Promise.all([
+      defaultEthersProvider[this.props.match.params.chain].getBlockNumber(),
+    ]);
     debug('blockNumber', blockNumber);
     debug('this.props.match', this.props.match);
     debug('this.state', this.state);
     this.setState(() => {
       return {
-        blockNumber: blockNumber,
+        blockNumber,
       };
     });
   }
@@ -298,6 +355,9 @@ class Web3ContextProvider extends Component {
           blockNumber: this.state.blockNumber,
           txs: this.state.txs,
           receipts: this.state.receipts,
+          minProposalMCB: this.state.minProposalMCB,
+          minPeriod: this.state.minPeriod,
+          mcbBalance: this.state.mcbBalance,
           connect: this.connect,
           disconnect: this.disconnect,
           propose: this.propose,

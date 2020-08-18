@@ -16,6 +16,7 @@ import { FaPlus } from 'react-icons/fa';
 import classNames from 'classnames';
 import { BarLoader } from 'react-spinners';
 import cap from 'capitalize';
+import { utils } from 'ethers';
 
 import { getProposals } from './gql';
 import { Web3Consumer } from './Web3Provider';
@@ -203,6 +204,10 @@ const Proposals = ({ classes, match }) => {
           )} is NOT supported. Switch to ${SUPPORTED_CHAINS.map((e) =>
             cap(e),
           ).join(' or ')}`;
+        } else if (web3Context.mcbBalance.lt(web3Context.minProposalMCB)) {
+          hintMessage = `${utils.commify(
+            utils.formatEther(web3Context.minProposalMCB.toString()),
+          )} MCB required to submit a proposal`;
         } else {
           hintMessage = 'Submit a new proposal';
         }
@@ -234,15 +239,19 @@ const Proposals = ({ classes, match }) => {
                           'hint--bounce',
                           classes.newProposalButton,
                           (!web3Context.address ||
-                            !SUPPORTED_CHAINS.includes(
-                              web3Context.chainName,
+                            !SUPPORTED_CHAINS.includes(web3Context.chainName) ||
+                            web3Context.mcbBalance.lt(
+                              web3Context.minProposalMCB,
                             )) &&
                             classes.buttonDisabled,
                         )}
                         onClick={() => {
                           if (
                             web3Context.address &&
-                            SUPPORTED_CHAINS.includes(web3Context.chainName)
+                            SUPPORTED_CHAINS.includes(web3Context.chainName) &&
+                            !web3Context.mcbBalance.lt(
+                              web3Context.minProposalMCB,
+                            )
                           ) {
                             setOpen(true);
                           }
@@ -339,10 +348,6 @@ const Proposals = ({ classes, match }) => {
                         className={classes.startBlockInput}
                         value={newProposalStartBlock}
                         onChange={(event) => {
-                          debug(
-                            'typeof event.target.value',
-                            typeof event.target.value,
-                          );
                           setStartBlockError(
                             parseInt(event.target.value) <=
                               web3Context.blockNumber,
@@ -361,20 +366,23 @@ const Proposals = ({ classes, match }) => {
                         className={classes.endBlockInput}
                         value={newProposalEndBlock}
                         onChange={(event) => {
-                          debug('event.target.value ', event.target.value);
                           debug(
-                            'newProposalStartBlock + 5760',
-                            newProposalStartBlock + 5760,
+                            'newProposalStartBlock + web3Context.minPeriod.toNumber()',
+                            newProposalStartBlock +
+                              web3Context.minPeriod.toNumber(),
                           );
                           setEndBlockError(
                             event.target.value <=
-                              parseInt(newProposalStartBlock) + 5760,
+                              parseInt(newProposalStartBlock) +
+                                web3Context.minPeriod.toNumber(),
                           );
                           setNewProposalEndBlock(event.target.value);
                         }}
                         error={hasEndBlockError}
                         helperText={
-                          hasEndBlockError ? 'Too small block number' : ''
+                          hasEndBlockError
+                            ? `Min ${web3Context.minPeriod.toString()} more than start block`
+                            : ''
                         }
                       />
                     </div>

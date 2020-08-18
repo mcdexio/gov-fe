@@ -40,7 +40,7 @@ export const LogoSmall = ({ width, className }) => (
 export const SUPPORTED_CHAINS = ['mainnet', 'ropsten', 'kovan'];
 
 export const BLOCHAIN_EXPLORER_BASE_URL = {
-  homestead: 'https://etherscan.io',
+  mainnet: 'https://etherscan.io',
   ropsten: 'https://ropsten.etherscan.io',
   kovan: 'https://kovan.etherscan.io',
   goerli: 'https://goerli.etherscan.io',

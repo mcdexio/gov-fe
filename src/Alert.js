@@ -64,7 +64,7 @@ const AlertComponent = ({ classes, match }) => {
           alerts.push(alertMessage);
         }
 
-        if (match.params.chain !== 'homestead') {
+        if (match.params.chain !== 'mainnet') {
           const alertMessage = (
             <div>
               You are <span className={classes.bold}>NOT on Mainnet</span>, but

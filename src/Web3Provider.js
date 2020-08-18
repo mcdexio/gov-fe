@@ -36,6 +36,10 @@ let ethersProvider;
 let ethersSigner;
 
 const defaultEthersProvider = {
+  mainnet: new ethers.providers.InfuraProvider(
+    'mainnet',
+    'e78c03298dbe469f81af846f6727d3d8',
+  ),
   ropsten: new ethers.providers.InfuraProvider(
     'ropsten',
     'e78c03298dbe469f81af846f6727d3d8',
@@ -93,22 +97,23 @@ class Web3ContextProvider extends Component {
     debug('accounts', accounts);
     debug('network', network);
 
+    const chainName = network.name === 'homestead' ? 'mainnet' : network.name;
     this.setState(() => {
       return {
         address: accounts[0].toLowerCase(),
         isConnected: true,
         isConnecting: false,
         chainID: network.chainId,
-        chainName: network.name,
+        chainName,
       };
     });
 
     if (
-      this.props.match.params.chain !== network.name &&
-      SUPPORTED_CHAINS.includes(network.name)
+      this.props.match.params.chain !== chainName &&
+      SUPPORTED_CHAINS.includes(chainName)
     ) {
-      debug('redirect to ', network.name);
-      this.props.history.push(`/${network.name}`);
+      debug('redirect to ', chainName);
+      this.props.history.push(`/${chainName}`);
     }
 
     debug('connected, ethersProvider:', ethersProvider);
@@ -127,19 +132,21 @@ class Web3ContextProvider extends Component {
     ethersProvider.on('network', async (network, oldNetwork) => {
       debug('ethersProvider.network network', network);
       debug('ethersProvider.network oldNetwork', oldNetwork);
+      const chainName = network.name === 'homestead' ? 'mainnet' : network.name;
+
       this.setState(() => {
         return {
           chainID: network.chainId,
-          chainName: network.name,
+          chainName,
         };
       });
 
       if (
-        this.props.match.params.chain !== network.name &&
-        SUPPORTED_CHAINS.includes(network.name)
+        this.props.match.params.chain !== chainName &&
+        SUPPORTED_CHAINS.includes(chainName)
       ) {
-        debug('redirect to ', network.name);
-        this.props.history.push(`/${network.name}`);
+        debug('redirect to ', chainName);
+        this.props.history.push(`/${chainName}`);
 
         const blockNumber = await defaultEthersProvider[
           this.props.match.params.chain
@@ -271,6 +278,7 @@ class Web3ContextProvider extends Component {
           txs: [...this.state.receipts, receipt],
         };
       });
+      setVoting('');
       refetch();
     } catch (error) {
       setVoting('');

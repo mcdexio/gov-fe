@@ -63,6 +63,7 @@ const styles = (theme) => ({
   },
   proposalTitle: {
     fontSize: '1.5rem',
+    textTransform: 'uppercase',
   },
   proposalID: {
     color: 'rgb(121, 132, 161)',

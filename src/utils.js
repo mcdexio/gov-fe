@@ -174,21 +174,19 @@ export const calcVotingSummary = ({
     yesVotesUni,
   } = votesSummary;
 
-  const uniMCBBalance = parseFloat(uniMCBAccount.balancesHistory[0].balance);
-  const uniSharesSupply = parseFloat(
-    uniContract.balancesHistory[0].totalSupply,
-  );
-  const mcbSupply = parseFloat(mcbContract.balancesHistory[0].totalSupply);
-  const yesVotesUniPct = yesVotesUni / uniSharesSupply;
-  const noVotesUniPct = noVotesUni / uniSharesSupply;
+  const uniMCBBalance = (uniMCBAccount && uniMCBAccount.balancesHistory && uniMCBAccount.balancesHistory[0]) ? parseFloat(uniMCBAccount.balancesHistory[0].balance) : 0;
+  const uniSharesSupply = (uniContract && uniContract.balancesHistory && uniContract.balancesHistory[0]) ? parseFloat(uniContract.balancesHistory[0].totalSupply) : 0;
+  const mcbSupply = (mcbContract && mcbContract.balancesHistory && mcbContract.balancesHistory[0]) ? parseFloat(mcbContract.balancesHistory[0].totalSupply) : 0;
+  const yesVotesUniPct = uniSharesSupply === 0 ? 0 : (yesVotesUni / uniSharesSupply);
+  const noVotesUniPct = uniSharesSupply === 0 ? 0 : (noVotesUni / uniSharesSupply);
   const yesVotesUniMCB = yesVotesUniPct * uniMCBBalance;
   const noVotesUniMCB = noVotesUniPct * uniMCBBalance;
 
   const yesVotes = yesVotesMCB + yesVotesUniMCB;
   const noVotes = noVotesMCB + noVotesUniMCB;
 
-  const yesVotesPct = yesVotes / (yesVotes + noVotes);
-  const noVotesPct = 1 - yesVotesPct;
+  const yesVotesPct = (yesVotes + noVotes) === 0 ? 0 : (yesVotes / (yesVotes + noVotes));
+  const noVotesPct = (yesVotes + noVotes) === 0 ? 0 : (noVotes / (yesVotes + noVotes));
 
   return {
     ...votesSummary,

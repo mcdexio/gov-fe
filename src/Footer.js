@@ -232,7 +232,7 @@ const Footer = ({ classes, match }) => {
                     'hint--bounce',
                     classes.voterAddress,
                   )}
-                  onClick={(e) => copy(voterAddress)}
+                  onClick={(e) => copy(classes.voterAddress)}
                   data-hint="Copy address"
                 >
                   MCB Token Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42

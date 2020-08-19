@@ -19,6 +19,7 @@ import {
   LogoSmall,
   BLOCHAIN_EXPLORER_BASE_URL,
   SUPPORTED_CHAINS,
+  MCB_ADDRESS,
 } from './utils';
 import { Web3Consumer } from './Web3Provider';
 
@@ -232,17 +233,17 @@ const Footer = ({ classes, match }) => {
                     'hint--bounce',
                     classes.voterAddress,
                   )}
-                  onClick={(e) => copy(classes.voterAddress)}
+                  onClick={(e) => copy(MCB_ADDRESS.mainnet)}
                   data-hint="Copy address"
                 >
-                  MCB Token Address: 0x4e352cf164e64adcbad318c3a1e222e9eba4ce42
+                  MCB Token Address: {MCB_ADDRESS.mainnet}
                 </div>
                 <a
                   className={classNames('hint--right', classes.externalLink)}
                   aria-label="open in Etherscan"
                   target="_blank"
                   rel="noreferrer noopener"
-                  href={`${BLOCHAIN_EXPLORER_BASE_URL['mainnet']}/address/0x4e352cf164e64adcbad318c3a1e222e9eba4ce42`}
+                  href={`${BLOCHAIN_EXPLORER_BASE_URL.mainnet}/token/${MCB_ADDRESS.mainnet}`}
                 >
                   <FaExternalLinkAlt />
                 </a>

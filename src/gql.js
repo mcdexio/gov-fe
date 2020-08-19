@@ -77,18 +77,12 @@ export const getProposal = gql`
       link
       beginBlock
       endBlock
-      transaction {
+      proposer {
         id
-        from {
-          id
-        }
       }
       votes {
         id
         content
-        transaction {
-          id
-        }
         voter {
           id
           votesMCB: balancesHistory(

@@ -325,6 +325,7 @@ type Proposal implements Event {
   id: ID!
   transaction: Transaction!
   timestamp: BigInt!
+  proposer: Account!
   link: String!
   beginBlock: BigInt!
   endBlock: BigInt!
@@ -362,6 +363,20 @@ input Proposal_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
+  proposer: String
+  proposer_not: String
+  proposer_gt: String
+  proposer_lt: String
+  proposer_gte: String
+  proposer_lte: String
+  proposer_in: [String!]
+  proposer_not_in: [String!]
+  proposer_contains: String
+  proposer_not_contains: String
+  proposer_starts_with: String
+  proposer_not_starts_with: String
+  proposer_ends_with: String
+  proposer_not_ends_with: String
   link: String
   link_not: String
   link_gt: String
@@ -398,6 +413,7 @@ enum Proposal_orderBy {
   id
   transaction
   timestamp
+  proposer
   link
   beginBlock
   endBlock

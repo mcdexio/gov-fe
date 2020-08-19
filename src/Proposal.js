@@ -300,7 +300,7 @@ const Proposal = ({ classes, match, location }) => {
         const alreadyVoted = data.proposal.votes.find(
           (vote) => vote.voter.id === web3Context.address,
         );
-        const proposalAuthorAddress = (data.proposal.transaction && data.proposal.transaction.from && data.proposal.transaction.from.id) ? data.proposal.transaction.from.id : '';
+        const proposalAuthorAddress = data.proposal?.proposer?.id || '';
         debug('alreadyVoted', alreadyVoted);
 
         return (
@@ -355,10 +355,7 @@ const Proposal = ({ classes, match, location }) => {
                     to={`../../${match.params.chain}/voter/${proposalAuthorAddress}`}
                   >
                     <div className={classes.proposer}>
-                      <Identicon
-                        size="48"
-                        value={proposalAuthorAddress}
-                      />
+                      <Identicon size="48" value={proposalAuthorAddress} />
                       <div className={classes.authorRight}>
                         <div className={classes.proposerTitle}>Proposer</div>
                         <div className={classes.authorAddress}>

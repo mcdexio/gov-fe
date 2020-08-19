@@ -71,6 +71,7 @@ const styles = (theme) => ({
     fontSize: '1.75rem',
     fontWeight: 700,
     color: 'white',
+    textTransform: 'uppercase',
   },
   proposalSubTitle: {
     marginTop: '0.6rem',

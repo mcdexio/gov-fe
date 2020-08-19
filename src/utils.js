@@ -82,7 +82,7 @@ export const VOTING_BOX = {
 };
 
 export const isValidLink = (link) =>
-  link.includes('https://forum.mcdex.io/t/') && link.split('/').length === 6;
+  link.includes('https://forum.mcdex.io/t/') && link.split('/').length >= 6;
 
 export const linkToTitle = (link) => {
   if (isValidLink(link)) {

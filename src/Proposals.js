@@ -262,7 +262,7 @@ const Proposals = ({ classes, match }) => {
                         <FaPlus size={15} />
                       </Button>
                     </ListItem>
-                    {proposals.reverse().map((proposal) => {
+                    {proposals.map((proposal) => {
                       const votingStatus = calcSimpleVotingStatus({
                         blockNumber: web3Context.blockNumber,
                         proposal,

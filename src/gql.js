@@ -2,7 +2,10 @@ import { gql } from '@apollo/client';
 
 export const getProposals = gql`
   query getProposal {
-    proposals {
+    proposals(
+      orderBy:timestamp
+      orderDirection:desc
+    ) {
       id
       timestamp
       beginBlock

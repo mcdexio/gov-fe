@@ -183,6 +183,7 @@ const Voter = ({ classes, match }) => {
     variables: {
       id: voterAddress,
       addressUniswap: UNI_MCB_POOL[match.params.chain],
+      addressMCB: MCB_ADDRESS[match.params.chain],
     },
   });
   if (loading)

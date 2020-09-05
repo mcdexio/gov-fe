@@ -66,8 +66,11 @@ export const getProposal = gql`
       balancesHistory(
         orderBy: block
         orderDirection: desc
-        where: { block_lte: $balanceBlock }
         first: 1
+        where: {
+          contract: $addressMCB
+          block_lte: $balanceBlock
+        }
       ) {
         id
         balance
@@ -119,12 +122,22 @@ export const getProposal = gql`
     }
   }
 `;
-
 export const getVoter = gql`
-  query getVoter($id: ID!, $addressUniswap: String!) {
+  query getVoter(
+    $id: ID!,
+    $addressUniswap: String!,
+    $addressMCB: String!
+  ) {
     uniMCBAccount: account(id: $addressUniswap) {
       id
-      balancesHistory(orderBy: block, orderDirection: desc, first: 1) {
+      balancesHistory(
+        orderBy: block
+        orderDirection: desc
+        first: 1
+        where: {
+          contract: $addressMCB
+        }
+      ) {
         id
         balance
         totalSupply

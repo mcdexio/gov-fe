@@ -78,7 +78,7 @@ export const UNI_MCB_ETH_POOL = {
 };
 
 export const UNI_MCB_USDC_POOL = {
-  mainnet: '0x10cfa744c77f1cb9a77fa418ac4a1b6ec62bcce4',
+  mainnet: '0x4c508567eaea699f61483c933184d351e7ecb862',
   ropsten: '0x4630d59caa4e40b47851c7033e95c28231e71bd7',
   kovan: '',
 };

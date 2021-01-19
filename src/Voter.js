@@ -20,7 +20,8 @@ import { getVoter } from './gql';
 import {
   SUBGRAPH_CLIENTS,
   MCB_ADDRESS,
-  UNI_MCB_POOL,
+  UNI_MCB_ETH_POOL,
+  UNI_MCB_USDC_POOL,
   formatAddress,
   linkToTitle,
   calcSimpleVotingStatus,
@@ -182,7 +183,8 @@ const Voter = ({ classes, match }) => {
     client: SUBGRAPH_CLIENTS[match.params.chain],
     variables: {
       id: voterAddress,
-      addressUniswap: UNI_MCB_POOL[match.params.chain],
+      addressUniswapMCBETH: UNI_MCB_ETH_POOL[match.params.chain],
+      addressUniswapMCBUSDC: UNI_MCB_USDC_POOL[match.params.chain],
       addressMCB: MCB_ADDRESS[match.params.chain],
     },
   });
@@ -212,7 +214,7 @@ const Voter = ({ classes, match }) => {
 
           const uniBalanceObj = data.account.balances.find(
             (balance) =>
-              balance.contract.id === UNI_MCB_POOL[match.params.chain],
+              balance.contract.id === UNI_MCB_ETH_POOL[match.params.chain],
           );
           debug('uniBalanceObj', uniBalanceObj);
           if (uniBalanceObj) {

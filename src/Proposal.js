@@ -22,7 +22,8 @@ import { getProposalByID, getProposal } from './gql';
 import Identicon from './Identicon';
 import {
   SUBGRAPH_CLIENTS,
-  UNI_MCB_POOL,
+  UNI_MCB_ETH_POOL,
+  UNI_MCB_USDC_POOL,
   MCB_ADDRESS,
   linkToTitle,
   formatAddress,
@@ -249,7 +250,8 @@ const Proposal = ({ classes, match, location }) => {
     variables: {
       id: match.params.id.toLowerCase(),
       addressMCB: MCB_ADDRESS[match.params.chain],
-      addressUniswap: UNI_MCB_POOL[match.params.chain],
+      addressUniswapMCBETH: UNI_MCB_ETH_POOL[match.params.chain],
+      addressUniswapMCBUSDC: UNI_MCB_USDC_POOL[match.params.chain],
       balanceBlock,
     },
     skip,
@@ -289,7 +291,6 @@ const Proposal = ({ classes, match, location }) => {
           votes: data.proposal.votes,
           uniMCBAccount: data.uniMCBAccount,
           uniContract: data.uniContract,
-          mcbContract: data.mcbContract,
         });
         const votingStatus = calcVotingStatus({
           blockNumber: web3Context.blockNumber,

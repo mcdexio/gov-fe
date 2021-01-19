@@ -30,6 +30,7 @@ import {
   formatMCB,
   calcVotingStatus,
   calcVotingSummary,
+  calcOneVoter,
 } from './utils';
 
 const debug = Debug('Proposal');
@@ -273,24 +274,26 @@ const Proposal = ({ classes, match, location }) => {
         debug('web3Context.receipts.length', web3Context.receipts.length);
 
         const {
-          noVoters,
-          noVotersMCB,
-          noVotersUni,
-          noVotesMCB,
-          noVotesUniMCB,
-          noVotes,
-          noVotesPct,
-          yesVoters,
           yesVotersMCB,
+          noVotersMCB,
           yesVotersUni,
+          noVotersUni,
+          yesVoters,
+          noVoters,
           yesVotesMCB,
-          yesVotesUniMCB,
+          yesVotesMCBInUni,
+          noVotesMCB,
+          noVotesMCBInUni,
           yesVotes,
+          noVotes,
           yesVotesPct,
+          noVotesPct,
         } = calcVotingSummary({
           votes: data.proposal.votes,
-          uniMCBAccount: data.uniMCBAccount,
-          uniContract: data.uniContract,
+          uniMCBETHAccount: data.uniMCBETHAccount,
+          uniMCBUSDCAccount: data.uniMCBUSDCAccount,
+          uniMCBETHContract: data.uniMCBETHContract,
+          uniMCBUSDCContract: data.uniMCBUSDCContract,
         });
         const votingStatus = calcVotingStatus({
           blockNumber: web3Context.blockNumber,
@@ -380,7 +383,7 @@ const Proposal = ({ classes, match, location }) => {
                           className={classNames('hint--bottom', 'hint--bounce')}
                           data-hint={`${formatMCB(
                             yesVotesMCB,
-                          )} MCB \u000A${formatMCB(yesVotesUniMCB)} UNI`}
+                          )} MCB \u000A${formatMCB(yesVotesMCBInUni)} UNI`}
                         >
                           {formatMCB(yesVotes)} MCB
                         </div>
@@ -418,30 +421,11 @@ const Proposal = ({ classes, match, location }) => {
                         {data.proposal.votes
                           .filter((vote) => vote.content === 'FOR')
                           .map((vote, index) => {
-                            const mcbBalance =
-                              vote.voter.votesMCB.length > 0
-                                ? parseFloat(vote.voter.votesMCB[0].balance)
-                                : 0;
-
-                            let uniMCBBalance = 0;
-                            if (vote.voter.votesUni.length > 0) {
-                              const uniSharesBalance =
-                                vote.voter.votesUni.length > 0
-                                  ? parseFloat(vote.voter.votesUni[0].balance)
-                                  : 0;
-                              debug('uniSharesBalance', uniSharesBalance);
-                              const uniSharesSupply = parseFloat(
-                                data.uniContract.balancesHistory[0].totalSupply,
-                              );
-                              debug('uniSharesSupply', uniSharesSupply);
-                              const mcbUniSupply = parseFloat(
-                                data.uniMCBAccount.balancesHistory[0].balance,
-                              );
-                              const uniSharesPct =
-                                uniSharesBalance / uniSharesSupply;
-                              debug('uniSharesPct', uniSharesPct);
-                              uniMCBBalance = uniSharesPct * mcbUniSupply;
-                            }
+                            const {
+                              mcbBalance,
+                              uniMCBETHBalance,
+                              uniMCBUSDCBalance
+                            } = calcOneVoter(data, vote.voter)
 
                             return (
                               <Link
@@ -462,10 +446,12 @@ const Proposal = ({ classes, match, location }) => {
                                     data-hint={`${formatMCB(
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
-                                      uniMCBBalance,
-                                    )} UNI`}
+                                      uniMCBETHBalance,
+                                    )} MCB-ETH UNI \u000A${formatMCB(
+                                      uniMCBUSDCBalance,
+                                    )} MCB-USDC UNI`}
                                   >
-                                    {formatMCB(mcbBalance + uniMCBBalance)} MCB
+                                    {formatMCB(mcbBalance + uniMCBETHBalance + uniMCBUSDCBalance)} MCB
                                   </div>
                                 </ListItem>
                               </Link>
@@ -529,7 +515,7 @@ const Proposal = ({ classes, match, location }) => {
                           className={classNames('hint--bottom', 'hint--bounce')}
                           data-hint={`${formatMCB(
                             noVotesMCB,
-                          )} MCB \u000A${formatMCB(noVotesUniMCB)} UNI`}
+                          )} MCB \u000A${formatMCB(noVotesMCBInUni)} UNI`}
                         >
                           {formatMCB(noVotes)} MCB
                         </div>
@@ -566,30 +552,11 @@ const Proposal = ({ classes, match, location }) => {
                         {data.proposal.votes
                           .filter((vote) => vote.content === 'AGAINST')
                           .map((vote, index) => {
-                            const mcbBalance =
-                              vote.voter.votesMCB.length > 0
-                                ? parseFloat(vote.voter.votesMCB[0].balance)
-                                : 0;
-
-                            let uniMCBBalance = 0;
-                            if (vote.voter.votesUni.length > 0) {
-                              const uniSharesBalance =
-                                vote.voter.votesUni.length > 0
-                                  ? parseFloat(vote.voter.votesUni[0].balance)
-                                  : 0;
-                              debug('uniSharesBalance', uniSharesBalance);
-                              const uniSharesSupply = parseFloat(
-                                data.uniContract.balancesHistory[0].totalSupply,
-                              );
-                              debug('uniSharesSupply', uniSharesSupply);
-                              const mcbUniSupply = parseFloat(
-                                data.uniMCBAccount.balancesHistory[0].balance,
-                              );
-                              const uniSharesPct =
-                                uniSharesBalance / uniSharesSupply;
-                              debug('uniSharesPct', uniSharesPct);
-                              uniMCBBalance = uniSharesPct * mcbUniSupply;
-                            }
+                            const {
+                              mcbBalance,
+                              uniMCBETHBalance,
+                              uniMCBUSDCBalance
+                            } = calcOneVoter(data, vote.voter)
 
                             return (
                               <Link
@@ -610,10 +577,12 @@ const Proposal = ({ classes, match, location }) => {
                                     data-hint={`${formatMCB(
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
-                                      uniMCBBalance,
-                                    )} UNI`}
+                                      uniMCBETHBalance,
+                                    )} MCB-ETH UNI \u000A${formatMCB(
+                                      uniMCBUSDCBalance,
+                                    )} MCB-USDC UNI`}
                                   >
-                                    {formatMCB(mcbBalance + uniMCBBalance)} MCB
+                                    {formatMCB(mcbBalance + uniMCBETHBalance + uniMCBUSDCBalance)} MCB
                                   </div>
                                 </ListItem>
                               </Link>

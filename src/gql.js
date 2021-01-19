@@ -34,7 +34,7 @@ export const getProposal = gql`
     $addressUniswapMCBUSDC: String!
     $balanceBlock: BigInt!
   ) {
-    uniContract: contract(id: $addressUniswapMCBETH) {
+    uniMCBETHContract: contract(id: $addressUniswapMCBETH) {
       balancesHistory(
         orderBy: block
         orderDirection: desc
@@ -44,7 +44,30 @@ export const getProposal = gql`
         totalSupply
       }
     }
-    uniMCBAccount: account(id: $addressUniswapMCBETH) {
+    uniMCBUSDCContract: contract(id: $addressUniswapMCBUSDC) {
+      balancesHistory(
+        orderBy: block
+        orderDirection: desc
+        where: { block_lte: $balanceBlock }
+        first: 1
+      ) {
+        totalSupply
+      }
+    }
+    uniMCBETHAccount: account(id: $addressUniswapMCBETH) {
+      balancesHistory(
+        orderBy: block
+        orderDirection: desc
+        first: 1
+        where: {
+          contract: $addressMCB
+          block_lte: $balanceBlock
+        }
+      ) {
+        balance
+      }
+    }
+    uniMCBUSDCAccount: account(id: $addressUniswapMCBUSDC) {
       balancesHistory(
         orderBy: block
         orderDirection: desc
@@ -78,10 +101,18 @@ export const getProposal = gql`
           ) {
             balance
           }
-          votesUni: balancesHistory(
+          votesUniMCBETH: balancesHistory(
             orderBy: block
             orderDirection: desc
             where: { contract: $addressUniswapMCBETH, block_lte: $balanceBlock }
+            first: 1
+          ) {
+            balance
+          }
+          votesUniMCBUSDC: balancesHistory(
+            orderBy: block
+            orderDirection: desc
+            where: { contract: $addressUniswapMCBUSDC, block_lte: $balanceBlock }
             first: 1
           ) {
             balance
@@ -98,7 +129,7 @@ export const getVoter = gql`
     $addressUniswapMCBUSDC: String!,
     $addressMCB: String!
   ) {
-    uniMCBAccount: account(id: $addressUniswapMCBETH) {
+    uniMCBETHAccount: account(id: $addressUniswapMCBETH) {
       balancesHistory(
         orderBy: block
         orderDirection: desc
@@ -110,7 +141,24 @@ export const getVoter = gql`
         balance
       }
     }
-    uniContract: contract(id: $addressUniswapMCBETH) {
+    uniMCBUSDCAccount: account(id: $addressUniswapMCBUSDC) {
+      balancesHistory(
+        orderBy: block
+        orderDirection: desc
+        first: 1
+        where: {
+          contract: $addressMCB
+        }
+      ) {
+        balance
+      }
+    }
+    uniMCBETHContract: contract(id: $addressUniswapMCBETH) {
+      balancesHistory(orderBy: block, orderDirection: desc, first: 1) {
+        totalSupply
+      }
+    }
+    uniMCBUSDCContract: contract(id: $addressUniswapMCBUSDC) {
       balancesHistory(orderBy: block, orderDirection: desc, first: 1) {
         totalSupply
       }

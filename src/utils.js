@@ -55,12 +55,12 @@ export const SUBGRAPH_CLIENTS = {
   }),
   ropsten: new ApolloClient({
     uri:
-      'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-ropsten-subgraph',
+      'https://api.thegraph.com/subgraphs/name/zhutianchi-mcarlo/mcdex-ropsten-subgraph',
     cache: new InMemoryCache(),
   }),
   kovan: new ApolloClient({
     uri:
-      'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-kovan-subgraph',
+      'https://api.thegraph.com/subgraphs/name/zhutianchi-mcarlo/mcdex-kovan-subgraph',
     cache: new InMemoryCache(),
   }),
 };
@@ -85,7 +85,7 @@ export const UNI_MCB_USDC_POOL = {
 
 export const VOTING_BOX = {
   mainnet: '0xb44a29b5fb1f6dc5730d721a2c12898e1e6c6c31',
-  ropsten: '0x79a367A7045d359765f9CdE9424304c85b9F7A25',
+  ropsten: '0x27c7ff19f32a354a7cc2a1873063df5026cd51f6',
   kovan: '0x66B16B80f09cb80a476f74dEF7315B39Ad53eF8F',
 };
 
@@ -111,13 +111,16 @@ export const formatMCB = (mcb) =>
 
 export const calcVotingSummary = ({
   votes,
-  uniMCBAccount,
-  uniContract,
+  uniMCBETHAccount,
+  uniMCBUSDCAccount,
+  uniMCBETHContract,
+  uniMCBUSDCContract,
 }) => {
   const votesSummary = votes.reduce(
     (acu, cur) => {
       const hasMCB = cur.voter.votesMCB.length > 0 ? true : false;
-      const hasUni = cur.voter.votesUni.length > 0 ? true : false;
+      const hasUniMCBETH = cur.voter.votesUniMCBETH.length > 0 ? true : false;
+      const hasUniMCBUSDC = cur.voter.votesUniMCBUSDC.length > 0 ? true : false;
       const isNo = cur.content === 'AGAINST' ? true : false;
       const isYes = cur.content === 'FOR' ? true : false;
       return {
@@ -132,10 +135,16 @@ export const calcVotingSummary = ({
               acu.noVotesMCB + parseFloat(cur.voter.votesMCB[0].balance),
           }),
         ...(isNo &&
-          hasUni && {
-            noVotersUni: acu.noVotersUni + 1,
-            noVotesUni:
-              acu.noVotesUni + parseFloat(cur.voter.votesUni[0].balance),
+          hasUniMCBETH && {
+            noVotersUniMCBETH: acu.noVotersUniMCBETH + 1,
+            noVotesUniMCBETH:
+              acu.noVotesUniMCBETH + parseFloat(cur.voter.votesUniMCBETH[0].balance),
+          }),
+        ...(isNo &&
+          hasUniMCBUSDC && {
+            noVotersUniMCBUSDC: acu.noVotersUniMCBUSDC + 1,
+            noVotesUniMCBUSDC:
+              acu.noVotesUniMCBUSDC + parseFloat(cur.voter.votesUniMCBUSDC[0].balance),
           }),
         ...(isYes && {
           yesVoters: acu.yesVoters + 1,
@@ -147,65 +156,88 @@ export const calcVotingSummary = ({
               acu.yesVotesMCB + parseFloat(cur.voter.votesMCB[0].balance),
           }),
         ...(isYes &&
-          hasUni && {
-            yesVotersUni: acu.yesVotersUni + 1,
-            yesVotesUni:
-              acu.yesVotesUni + parseFloat(cur.voter.votesUni[0].balance),
+          hasUniMCBETH && {
+            yesVotersUniMCBETH: acu.yesVotersUniMCBETH + 1,
+            yesVotesUniMCBETH:
+              acu.yesVotesUniMCBETH + parseFloat(cur.voter.votesUniMCBETH[0].balance),
+          }),
+        ...(isYes &&
+          hasUniMCBUSDC && {
+            yesVotersUniMCBUSDC: acu.yesVotersUniMCBUSDC + 1,
+            yesVotesUniMCBUSDC:
+              acu.yesVotesUniMCBUSDC + parseFloat(cur.voter.votesUniMCBUSDC[0].balance),
           }),
       };
     },
     {
       noVoters: 0,
       noVotersMCB: 0,
-      noVotersUni: 0,
+      noVotersUniMCBETH: 0,
+      noVotersUniMCBUSDC: 0,
       noVotesMCB: 0,
-      noVotesUni: 0,
+      noVotesUniMCBETH: 0,
+      noVotesUniMCBUSDC: 0,
       yesVoters: 0,
       yesVotersMCB: 0,
-      yesVotersUni: 0,
+      yesVotersUniMCBETH: 0,
+      yesVotersUniMCBUSDC: 0,
       yesVotesMCB: 0,
-      yesVotesUni: 0,
+      yesVotesUniMCBETH: 0,
+      yesVotesUniMCBUSDC: 0,
     },
   );
   debug('votesSummary', votesSummary);
   const {
     noVoters,
     noVotersMCB,
-    noVotersUni,
+    noVotersUniMCBETH,
+    noVotersUniMCBUSDC,
     noVotesMCB,
-    noVotesUni,
+    noVotesUniMCBETH,
+    noVotesUniMCBUSDC,
     yesVoters,
     yesVotersMCB,
-    yesVotersUni,
+    yesVotersUniMCBETH,
+    yesVotersUniMCBUSDC,
     yesVotesMCB,
-    yesVotesUni,
+    yesVotesUniMCBETH,
+    yesVotesUniMCBUSDC,
   } = votesSummary;
 
-  const uniMCBBalance = (uniMCBAccount && uniMCBAccount.balancesHistory && uniMCBAccount.balancesHistory[0]) ? parseFloat(uniMCBAccount.balancesHistory[0].balance) : 0;
-  const uniSharesSupply = (uniContract && uniContract.balancesHistory && uniContract.balancesHistory[0]) ? parseFloat(uniContract.balancesHistory[0].totalSupply) : 0;
-  const yesVotesUniPct = uniSharesSupply === 0 ? 0 : (yesVotesUni / uniSharesSupply);
-  const noVotesUniPct = uniSharesSupply === 0 ? 0 : (noVotesUni / uniSharesSupply);
-  const yesVotesUniMCB = yesVotesUniPct * uniMCBBalance;
-  const noVotesUniMCB = noVotesUniPct * uniMCBBalance;
+  // MCB in Uniswap pools
+  let yesVotesMCBInUni = 0
+  let noVotesMCBInUni = 0
 
-  const yesVotes = yesVotesMCB + yesVotesUniMCB;
-  const noVotes = noVotesMCB + noVotesUniMCB;
+  const uniMCBETHBalance = (uniMCBETHAccount && uniMCBETHAccount.balancesHistory && uniMCBETHAccount.balancesHistory[0]) ? parseFloat(uniMCBETHAccount.balancesHistory[0].balance) : 0;
+  const uniMCBETHSharesSupply = (uniMCBETHContract && uniMCBETHContract.balancesHistory && uniMCBETHContract.balancesHistory[0]) ? parseFloat(uniMCBETHContract.balancesHistory[0].totalSupply) : 0;
+  yesVotesMCBInUni += uniMCBETHSharesSupply === 0 ? 0 : yesVotesUniMCBETH / uniMCBETHSharesSupply * uniMCBETHBalance;
+  noVotesMCBInUni += uniMCBETHSharesSupply === 0 ? 0 : noVotesUniMCBETH / uniMCBETHSharesSupply * uniMCBETHBalance;
+
+  const uniMCBUSDCBalance = (uniMCBUSDCAccount && uniMCBUSDCAccount.balancesHistory && uniMCBUSDCAccount.balancesHistory[0]) ? parseFloat(uniMCBUSDCAccount.balancesHistory[0].balance) : 0;
+  const uniMCBUSDCSharesSupply = (uniMCBUSDCContract && uniMCBUSDCContract.balancesHistory && uniMCBUSDCContract.balancesHistory[0]) ? parseFloat(uniMCBUSDCContract.balancesHistory[0].totalSupply) : 0;
+  yesVotesMCBInUni += uniMCBUSDCSharesSupply === 0 ? 0 : yesVotesUniMCBUSDC / uniMCBUSDCSharesSupply * uniMCBUSDCBalance;
+  noVotesMCBInUni += uniMCBUSDCSharesSupply === 0 ? 0 : noVotesUniMCBUSDC / uniMCBUSDCSharesSupply * uniMCBUSDCBalance;
+
+  const yesVotes = yesVotesMCB + yesVotesMCBInUni;
+  const noVotes = noVotesMCB + noVotesMCBInUni;
 
   const yesVotesPct = (yesVotes + noVotes) === 0 ? 0 : (yesVotes / (yesVotes + noVotes));
   const noVotesPct = (yesVotes + noVotes) === 0 ? 0 : (noVotes / (yesVotes + noVotes));
 
   return {
     ...votesSummary,
-    yesVotesUniPct,
-    noVotesUniPct,
-    yesVotesUniMCB,
-    noVotesUniMCB,
+    yesVotesMCBInUni,
+    noVotesMCBInUni,
     yesVotes,
     noVotes,
     yesVotesPct,
     noVotesPct,
-    uniMCBBalance,
-    uniSharesSupply,
+    yesVotersUni: yesVotersUniMCBETH + yesVotersUniMCBUSDC,
+    noVotersUni: noVotersUniMCBETH + noVotersUniMCBUSDC,
+    uniMCBETHBalance,
+    uniMCBETHSharesSupply,
+    uniMCBUSDCBalance,
+    uniMCBUSDCSharesSupply
   };
 };
 
@@ -245,3 +277,57 @@ export const calcSimpleVotingStatus = ({ blockNumber, proposal }) => {
   }
   return votingStatus;
 };
+
+// data is the return value of getProposal
+export const calcOneVoter = (data, voter) => {
+  const mcbBalance =
+    voter.votesMCB.length > 0
+      ? parseFloat(voter.votesMCB[0].balance)
+      : 0;
+
+  let uniMCBETHBalance = 0;
+  if (voter.votesUniMCBETH.length > 0) {
+    const uniSharesBalance =
+      voter.votesUniMCBETH.length > 0
+        ? parseFloat(voter.votesUniMCBETH[0].balance)
+        : 0;
+    debug('uniSharesBalance', uniSharesBalance);
+    const uniSharesSupply = parseFloat(
+      data.uniMCBETHContract.balancesHistory[0].totalSupply,
+    );
+    debug('uniSharesSupply', uniSharesSupply);
+    const mcbUniSupply = parseFloat(
+      data.uniMCBETHAccount.balancesHistory[0].balance,
+    );
+    const uniSharesPct = uniSharesSupply == 0 ? 0 :
+      uniSharesBalance / uniSharesSupply;
+    debug('uniSharesPct', uniSharesPct);
+    uniMCBETHBalance = uniSharesPct * mcbUniSupply;
+  }
+
+  let uniMCBUSDCBalance = 0;
+  if (voter.votesUniMCBUSDC.length > 0) {
+    const uniSharesBalance =
+      voter.votesUniMCBUSDC.length > 0
+        ? parseFloat(voter.votesUniMCBUSDC[0].balance)
+        : 0;
+    debug('uniSharesBalance', uniSharesBalance);
+    const uniSharesSupply = parseFloat(
+      data.uniMCBUSDCContract.balancesHistory[0].totalSupply,
+    );
+    debug('uniSharesSupply', uniSharesSupply);
+    const mcbUniSupply = parseFloat(
+      data.uniMCBUSDCAccount.balancesHistory[0].balance,
+    );
+    const uniSharesPct = uniSharesSupply == 0 ? 0 :
+      uniSharesBalance / uniSharesSupply;
+    debug('uniSharesPct', uniSharesPct);
+    uniMCBUSDCBalance = uniSharesPct * mcbUniSupply;
+  }
+
+  return {
+    mcbBalance,
+    uniMCBETHBalance,
+    uniMCBUSDCBalance
+  }
+}

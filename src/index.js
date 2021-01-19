@@ -16,7 +16,7 @@ import { SUPPORTED_CHAINS } from './utils';
 
 const client = new ApolloClient({
   uri:
-    'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-ropsten-subgraph',
+    'https://api.thegraph.com/subgraphs/name/zhutianchi-mcarlo/mcdex-ropsten-subgraph',
   cache: new InMemoryCache(),
 });
 

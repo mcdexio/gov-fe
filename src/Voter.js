@@ -202,7 +202,8 @@ const Voter = ({ classes, match }) => {
     <Web3Consumer>
       {(web3Context) => {
         let mcbBalance = 0;
-        let uniMCBBalance = 0;
+        let mcbInUniMCBETHBalance = 0;
+        let mcbInUniMCBUSDCBalance = 0;
 
         if (data?.account?.balances?.length > 0) {
           const mcbBalanceObj = data.account.balances.find(
@@ -212,21 +213,38 @@ const Voter = ({ classes, match }) => {
           if (mcbBalanceObj) mcbBalance = mcbBalanceObj.balance;
           debug('mcbBalance', mcbBalance);
 
-          const uniBalanceObj = data.account.balances.find(
+          const uniMCBETHBalanceObj = data.account.balances.find(
             (balance) =>
               balance.contract.id === UNI_MCB_ETH_POOL[match.params.chain],
           );
-          debug('uniBalanceObj', uniBalanceObj);
-          if (uniBalanceObj) {
-            const uniSharesBalance = parseFloat(uniBalanceObj.balance);
-            const uniSharesSupply = parseFloat(
-              data.uniContract.balancesHistory[0].totalSupply,
+          debug('uniBalanceObj', uniMCBETHBalanceObj);
+          if (uniMCBETHBalanceObj) {
+            const uniMCBETHSharesBalance = parseFloat(uniMCBETHBalanceObj.balance);
+            const uniMCBETHSharesSupply = parseFloat(
+              data.uniMCBETHContract.balancesHistory[0].totalSupply,
             );
-            const mcbUniSupply = parseFloat(
-              data.uniMCBAccount.balancesHistory[0].balance,
+            const mcbInUni = parseFloat(
+              data.uniMCBETHAccount.balancesHistory[0].balance,
             );
-            const uniSharesPct = uniSharesBalance / uniSharesSupply;
-            uniMCBBalance = uniSharesPct * mcbUniSupply;
+            const uniSharesPct = uniMCBETHSharesSupply == 0 ? 0 : uniMCBETHSharesBalance / uniMCBETHSharesSupply;
+            mcbInUniMCBETHBalance = uniSharesPct * mcbInUni;
+          }
+
+          const uniMCBUSDCBalanceObj = data.account.balances.find(
+            (balance) =>
+              balance.contract.id === UNI_MCB_USDC_POOL[match.params.chain],
+          );
+          debug('uniBalanceObj', uniMCBUSDCBalanceObj);
+          if (uniMCBUSDCBalanceObj) {
+            const uniMCBUSDCSharesBalance = parseFloat(uniMCBUSDCBalanceObj.balance);
+            const uniMCBUSDCSharesSupply = parseFloat(
+              data.uniMCBUSDCContract.balancesHistory[0].totalSupply,
+            );
+            const mcbInUni = parseFloat(
+              data.uniMCBUSDCAccount.balancesHistory[0].balance,
+            );
+            const uniSharesPct = uniMCBUSDCSharesSupply == 0 ? 0 : uniMCBUSDCSharesBalance / uniMCBUSDCSharesSupply;
+            mcbInUniMCBUSDCBalance = uniSharesPct * mcbInUni;
           }
         }
 
@@ -282,7 +300,7 @@ const Voter = ({ classes, match }) => {
                           MCB Total Balance
                         </div>
                         <div className={classes.holdingsItemBalance}>
-                          {formatMCB(parseFloat(mcbBalance) + uniMCBBalance)}
+                          {formatMCB(parseFloat(mcbBalance) + mcbInUniMCBETHBalance + mcbInUniMCBUSDCBalance)}
                         </div>
                       </ListItem>
                       <Divider />
@@ -301,8 +319,14 @@ const Voter = ({ classes, match }) => {
                         <div className={classes.holdingsItemTitle}>
                           MCB Balance in Uniswap
                         </div>
-                        <div className={classes.holdingsItemBalance}>
-                          {formatMCB(uniMCBBalance)}
+                        <div className={classes.holdingsItemBalance}
+                          title={`${formatMCB(
+                            mcbInUniMCBETHBalance,
+                          )} MCB in MCB-ETH POOL \u000A${formatMCB(
+                            mcbInUniMCBUSDCBalance,
+                          )} MCB in MCB-USDC POOL`}
+                        >
+                          {formatMCB(mcbInUniMCBETHBalance + mcbInUniMCBUSDCBalance)}
                         </div>
                       </ListItem>
                     </List>

@@ -55,12 +55,12 @@ export const SUBGRAPH_CLIENTS = {
   }),
   ropsten: new ApolloClient({
     uri:
-      'https://api.thegraph.com/subgraphs/name/zhutianchi-mcarlo/mcdex-ropsten-subgraph',
+      'https://api.thegraph.com/subgraphs/name/zhutianchi-mcarlo/mcb-vote1',
     cache: new InMemoryCache(),
   }),
   kovan: new ApolloClient({
     uri:
-      'https://api.thegraph.com/subgraphs/name/zhutianchi-mcarlo/mcdex-kovan-subgraph',
+      'https://api.thegraph.com/subgraphs/name/sulliwane/mcdex-kovan-subgraph',
     cache: new InMemoryCache(),
   }),
 };
@@ -285,7 +285,7 @@ export const calcOneVoter = (data, voter) => {
       ? parseFloat(voter.votesMCB[0].balance)
       : 0;
 
-  let uniMCBETHBalance = 0;
+  let mcbInUniMCBETHBalance = 0;
   if (voter.votesUniMCBETH.length > 0) {
     const uniSharesBalance =
       voter.votesUniMCBETH.length > 0
@@ -296,16 +296,16 @@ export const calcOneVoter = (data, voter) => {
       data.uniMCBETHContract.balancesHistory[0].totalSupply,
     );
     debug('uniSharesSupply', uniSharesSupply);
-    const mcbUniSupply = parseFloat(
+    const mcbInUni = parseFloat(
       data.uniMCBETHAccount.balancesHistory[0].balance,
     );
     const uniSharesPct = uniSharesSupply == 0 ? 0 :
       uniSharesBalance / uniSharesSupply;
     debug('uniSharesPct', uniSharesPct);
-    uniMCBETHBalance = uniSharesPct * mcbUniSupply;
+    mcbInUniMCBETHBalance = uniSharesPct * mcbInUni;
   }
 
-  let uniMCBUSDCBalance = 0;
+  let mcbInUniMCBUSDCBalance = 0;
   if (voter.votesUniMCBUSDC.length > 0) {
     const uniSharesBalance =
       voter.votesUniMCBUSDC.length > 0
@@ -316,18 +316,18 @@ export const calcOneVoter = (data, voter) => {
       data.uniMCBUSDCContract.balancesHistory[0].totalSupply,
     );
     debug('uniSharesSupply', uniSharesSupply);
-    const mcbUniSupply = parseFloat(
+    const mcbInUni = parseFloat(
       data.uniMCBUSDCAccount.balancesHistory[0].balance,
     );
     const uniSharesPct = uniSharesSupply == 0 ? 0 :
       uniSharesBalance / uniSharesSupply;
     debug('uniSharesPct', uniSharesPct);
-    uniMCBUSDCBalance = uniSharesPct * mcbUniSupply;
+    mcbInUniMCBUSDCBalance = uniSharesPct * mcbInUni;
   }
 
   return {
     mcbBalance,
-    uniMCBETHBalance,
-    uniMCBUSDCBalance
+    mcbInUniMCBETHBalance,
+    mcbInUniMCBUSDCBalance
   }
 }

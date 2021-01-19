@@ -269,9 +269,9 @@ const Proposal = ({ classes, match, location }) => {
   return (
     <Web3Consumer>
       {(web3Context) => {
-        debug('data.proposal.votes', data.proposal.votes);
-        debug('web3Context.txs.length', web3Context.txs.length);
-        debug('web3Context.receipts.length', web3Context.receipts.length);
+        debug('data.proposal.votes', data?.proposal?.votes);
+        debug('web3Context.txs.length', web3Context?.txs?.length);
+        debug('web3Context.receipts.length', web3Context?.receipts?.length);
 
         const {
           yesVotersMCB,
@@ -423,8 +423,8 @@ const Proposal = ({ classes, match, location }) => {
                           .map((vote, index) => {
                             const {
                               mcbBalance,
-                              uniMCBETHBalance,
-                              uniMCBUSDCBalance
+                              mcbInUniMCBETHBalance,
+                              mcbInUniMCBUSDCBalance
                             } = calcOneVoter(data, vote.voter)
 
                             return (
@@ -446,12 +446,12 @@ const Proposal = ({ classes, match, location }) => {
                                     data-hint={`${formatMCB(
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
-                                      uniMCBETHBalance,
-                                    )} MCB-ETH UNI \u000A${formatMCB(
-                                      uniMCBUSDCBalance,
-                                    )} MCB-USDC UNI`}
+                                      mcbInUniMCBETHBalance,
+                                    )} MCB in MCB-ETH POOL \u000A${formatMCB(
+                                      mcbInUniMCBUSDCBalance,
+                                    )} MCB in MCB-USDC POOL`}
                                   >
-                                    {formatMCB(mcbBalance + uniMCBETHBalance + uniMCBUSDCBalance)} MCB
+                                    {formatMCB(mcbBalance + mcbInUniMCBETHBalance + mcbInUniMCBUSDCBalance)} MCB
                                   </div>
                                 </ListItem>
                               </Link>
@@ -554,8 +554,8 @@ const Proposal = ({ classes, match, location }) => {
                           .map((vote, index) => {
                             const {
                               mcbBalance,
-                              uniMCBETHBalance,
-                              uniMCBUSDCBalance
+                              mcbInUniMCBETHBalance,
+                              mcbInUniMCBUSDCBalance
                             } = calcOneVoter(data, vote.voter)
 
                             return (
@@ -577,12 +577,12 @@ const Proposal = ({ classes, match, location }) => {
                                     data-hint={`${formatMCB(
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
-                                      uniMCBETHBalance,
+                                      mcbInUniMCBETHBalance,
                                     )} MCB-ETH UNI \u000A${formatMCB(
-                                      uniMCBUSDCBalance,
+                                      mcbInUniMCBUSDCBalance,
                                     )} MCB-USDC UNI`}
                                   >
-                                    {formatMCB(mcbBalance + uniMCBETHBalance + uniMCBUSDCBalance)} MCB
+                                    {formatMCB(mcbBalance + mcbInUniMCBETHBalance + mcbInUniMCBUSDCBalance)} MCB
                                   </div>
                                 </ListItem>
                               </Link>

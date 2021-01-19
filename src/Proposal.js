@@ -383,7 +383,7 @@ const Proposal = ({ classes, match, location }) => {
                           className={classNames('hint--bottom', 'hint--bounce')}
                           data-hint={`${formatMCB(
                             yesVotesMCB,
-                          )} MCB \u000A${formatMCB(yesVotesMCBInUni)} UNI`}
+                          )} MCB \u000A${formatMCB(yesVotesMCBInUni)} MCB in UNI`}
                         >
                           {formatMCB(yesVotes)} MCB
                         </div>
@@ -515,7 +515,7 @@ const Proposal = ({ classes, match, location }) => {
                           className={classNames('hint--bottom', 'hint--bounce')}
                           data-hint={`${formatMCB(
                             noVotesMCB,
-                          )} MCB \u000A${formatMCB(noVotesMCBInUni)} UNI`}
+                          )} MCB \u000A${formatMCB(noVotesMCBInUni)} MCB in UNI`}
                         >
                           {formatMCB(noVotes)} MCB
                         </div>
@@ -578,9 +578,9 @@ const Proposal = ({ classes, match, location }) => {
                                       mcbBalance,
                                     )} MCB \u000A${formatMCB(
                                       mcbInUniMCBETHBalance,
-                                    )} MCB-ETH UNI \u000A${formatMCB(
+                                    )} MCB in MCB-ETH POOL \u000A${formatMCB(
                                       mcbInUniMCBUSDCBalance,
-                                    )} MCB-USDC UNI`}
+                                    )} MCB in MCB-USDC POOL`}
                                   >
                                     {formatMCB(mcbBalance + mcbInUniMCBETHBalance + mcbInUniMCBUSDCBalance)} MCB
                                   </div>
